@@ -5,7 +5,7 @@ import Data.Vect
 import LinearTypes
 import LIO
 import Unitary
-import StateLT
+import QStateT
 import Teleportation
 import Random
 import Injection
@@ -32,7 +32,7 @@ testBreak  = do
   [q1,q2,q3,q4] <- newQubits 4
   [b3] <- measure [q3]
   [q5,q6] <- newQubits 2
-  [q4,q2,q5] <- applyCircuit [q4,q2,q5] (X 0 IdGate)
+  [q4,q2,q5] <- applyUnitary [q4,q2,q5] (X 0 IdGate)
   [b1,b4,b2] <- measure [q1,q4,q2]
   [b5,b6] <- measure [q5,q6]
   pure ([b1,b2,b3,b4,b5,b6])
@@ -51,10 +51,9 @@ testG (S k) = do
 testCH : IO (Vect 2 Bool)
 testCH = run (
   do 
-    [q0,q1] <- newQubits 2
-    [q0] <- applyCircuit [q0] XGate
-    --[q1] <- applyCircuit [q1] XGate
-    [q0,q1] <- applyCircuit [q0,q1] controlledH
+    [q0,q1] <- newQubits {t = SimulatedState} 2
+    [q0] <- applyUnitary [q0] XGate
+    [q0,q1] <- applyUnitary [q0,q1] controlledH
     measure [q0,q1])
 
 export

@@ -6,7 +6,7 @@ import Unitary
 import Injection
 import Lemmas
 import LIO
-import StateLT
+import QStateT
 import AlterningBitsOracle
 import Simulations
 
@@ -66,15 +66,16 @@ grover' n oracle nbIter =
   
 
 public export total
-grover : (n : Nat) -> {p : Nat} -> (oracle : Unitary (n + p)) -> (nbIter : Nat) -> IO (Vect n Bool)
+grover : {t : Nat -> Type} -> QuantumState t =>
+         (n : Nat) -> {p : Nat} -> (oracle : Unitary (n + p)) -> (nbIter : Nat) -> IO (Vect n Bool)
 grover n oracle nbIter = do
+    let circuit = grover' n oracle nbIter
     w <- run (do
-                   let circuit = grover' n oracle nbIter
-                   q <- newQubits (n + p)
-                   q <- applyCircuit q circuit
-                   v <- measure2 q
-                   pure v
-                   )
+                 q <- newQubits {t=t} (n + p)
+                 q <- applyUnitary q circuit
+                 v <- measure2 q
+                 pure v
+                 )
     pure (take n w)
 
 
@@ -85,6 +86,6 @@ grover n oracle nbIter = do
 public export
 testGrover : IO (Vect 4 Bool)
 testGrover = 
-  grover 4 {p = 1} (solve 2) 1
+  grover {t = SimulatedState} 4 {p = 1} (solve 2) 1
 
 

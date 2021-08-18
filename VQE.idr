@@ -4,7 +4,7 @@ import Data.Nat
 import Data.Vect
 import Unitary
 import LIO
-import StateLT
+import QStateT
 import Injection
 import LinearTypes
 import Complex
@@ -88,21 +88,33 @@ pretendClassicalWork n (S k) v m = do
 
 -------------------PUTTING QUANTUM AND CLASSICAL PARTS TOGETHER : SIMULATIONS------------------
 
-VQE' : (n : Nat) -> (hamiltonian : Vect (power 2 n) (Vect (power 2 n) (Complex Double))) -> (nbIter : Nat) -> (depth : Nat) ->
+VQE' : {t : Nat -> Type} -> QuantumState t =>
+       (n : Nat) -> (hamiltonian : Vect (power 2 n) (Vect (power 2 n) (Complex Double))) -> (nbIter : Nat) -> (depth : Nat) ->
        IO (Vect n Bool)
 VQE' n _ 0 depth = pure (replicate n False)
 VQE' n m (S k) depth = do
-  v <- VQE' n m k depth
+  v <- VQE' {t=t} n m k depth
   (xs,ys) <- pretendClassicalWork n depth v m
   run (do
     let c = ansatz n depth xs ys
-    q <- newQubits n
-    q <- applyCircuit q c
+    q <- newQubits {t=t} n
+    q <- applyUnitary q c
     measure2 q)
   
 export
-VQE : (n : Nat) -> (hamiltonian : Vect (power 2 n) (Vect (power 2 n) (Complex Double))) -> (nbIter : Nat) -> (depth : Nat) ->
+VQE : {t : Nat -> Type} -> QuantumState t =>
+      (n : Nat) -> (hamiltonian : Vect (power 2 n) (Vect (power 2 n) (Complex Double))) -> (nbIter : Nat) -> (depth : Nat) ->
       IO Double
 VQE n m k d = do
-  res <- VQE' n m k d
+  res <- VQE' {t=t} n m k d
   pretendComputeEnergy res
+
+
+export
+main : IO ()
+main = do
+  putStrLn "\nSmall test VQE"
+  w <- VQE {t = SimulatedState} 3 (replicate 8 (replicate 8 0)) 2 1
+  putStrLn (show w)
+  putStrLn "\nprinting another ansatz:"
+  draw (ansatz 2 2 [[1,2],[9,10],[17,18]] [[5,6],[13,14],[21,22]])

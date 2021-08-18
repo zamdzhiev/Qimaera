@@ -4,7 +4,7 @@ import Data.Nat
 import Data.Vect
 import Unitary
 import LIO
-import StateLT
+import QStateT
 import Injection
 import LinearTypes
 import Simulations
@@ -12,11 +12,11 @@ import Simulations
 quantum_operation : QuantumOp 0 1 Qubit
 quantum_operation = do
   q <- newQubit 
-  [q] <- applyCircuit [q] HGate
+  [q] <- applyUnitary [q] HGate
   pure q
 
 
 quantum_operation2 : (1 _ : Qubit) -> QuantumOp 1 1 Qubit
 quantum_operation2 q = do
-  [r] <- applyCircuit [q] HGate
+  [r] <- applyUnitary [q] HGate
   pure r

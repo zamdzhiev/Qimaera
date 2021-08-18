@@ -2,16 +2,9 @@ module Unitary
 
 import Data.Vect
 import Data.Nat
-import Decidable.Equality
 import System.File
 import Injection
-import Matrix
-import Complex
-import Random
 import Lemmas
-import StateLT
-import LIO
-import LinearTypes
 
 infixr 9 @@
 infixr 10 #
@@ -23,10 +16,10 @@ infixr 10 #
 
 public export
 data Unitary : Nat -> Type where
-  IdGate  : {n : Nat} -> Unitary n
-  H       : {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
-  P       : (p : Double) -> {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
-  CNOT    : {n : Nat} -> (c : Nat) -> (t : Nat) -> 
+  IdGate : {n : Nat} -> Unitary n
+  H      : {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
+  P      : (p : Double) -> {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
+  CNOT   : {n : Nat} -> (c : Nat) -> (t : Nat) -> 
             {auto prf1 : (c < n) = True} -> {auto prf2 : (t < n) = True} -> {auto prf3 : (c /= t) = True} -> 
             Unitary n -> Unitary n
 
@@ -156,7 +149,7 @@ public export
 XGate : Unitary 1
 XGate = X 0 IdGate
 
-|||Put two qubits initally in state |00> in the Bell state
+||| Put two qubits initally in state |00> in the Bell state
 public export
 toBellBasis : Unitary 2
 toBellBasis = CNOT 0 1 (H 0 IdGate)

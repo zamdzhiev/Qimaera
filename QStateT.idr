@@ -1,4 +1,4 @@
-module StateLT
+module QStateT
 
 import Control.Monad.State
 import LinearTypes
