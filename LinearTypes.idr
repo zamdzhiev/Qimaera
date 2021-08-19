@@ -33,7 +33,7 @@ public export
   show ( a # b ) = "( " ++ show a ++ " # " ++ show b ++ " )"
 
 public export
-(++) : (1 xs : LVect m elem) -> (1 ys : LVect n elem) -> LVect (m + n) elem
+(++) : (1 xs : LVect m a) -> (1 ys : LVect n a) -> LVect (m + n) a
 (++) []      ys = ys
 (++) (x::xs) ys = x :: (xs ++ ys)
 

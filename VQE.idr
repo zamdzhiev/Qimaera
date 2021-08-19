@@ -99,7 +99,7 @@ VQE' n m (S k) depth = do
     let c = ansatz n depth xs ys
     q <- newQubits {t=t} n
     q <- applyUnitary q c
-    measure2 q)
+    measureAll q)
   
 export
 VQE : {t : Nat -> Type} -> QuantumState t =>

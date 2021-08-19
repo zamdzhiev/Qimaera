@@ -59,14 +59,21 @@ interface QuantumState (t : Nat -> Type) where
     pure (q1 # q2)
 
   ||| Measure some qubits in a quantum state
+  public export
   measure : {n : Nat} -> {i : Nat} -> (1 _ : LVect i Qubit) -> QStateT (t (i + n)) (t n) (Vect i Bool)
 
+  ||| Same as measure, but with an initial state of n + i instead of i + n qubits to help with theorem proving in some cases
+  -- public export
+  -- measure2 : {n : Nat} -> {i : Nat} -> (LVect i Qubit) -> QStateT (t (n + i)) (t n) (Vect i Bool)
+  -- measure2 v = rewrite plusCommutative n i in measure v
 
-  ||| Same as measure, but with an initial state of n + i instead of i + n qubits to avoid theorem proving in some cases
-  measure2 : {n : Nat} -> {i : Nat} -> (1 _ : LVect i Qubit) -> QStateT (t (n + i)) (t n) (Vect i Bool)
-  measure2 v = rewrite plusCommutative n i in
-           let res = measure v
-           in res
+  ||| Measure all qubits in a quantum state
+  public export
+  measureAll : {n : Nat} -> (LVect n Qubit) -> QStateT (t n) (t 0) (Vect n Bool)
+  -- measureAll qs = let res = measure qs in
+  --                    rewrite sym $ plusZeroRightNeutral n in res
+                          
+
 
   ||| Measure only one qubit
   measureQubit : {n : Nat} -> (1 _ : Qubit) -> QStateT (t (S n)) (t n) Bool
@@ -317,13 +324,6 @@ export
 measureSimulated : {n : Nat} -> {i : Nat} -> (1 _ : LVect i Qubit) -> QuantumOp (i + n) n (Vect i Bool)
 measureSimulated v = MkQST (measureQubits' v)
 
-
-|||Same as measure, but with an initial state of n + i instead of i + n qubits to avoid theorem proving in some cases
-||| export
-||| measure2 : {n : Nat} -> {i : Nat} -> (1 _ : LVect i Qubit) -> QuantumOp (n + i) n (Vect i Bool)
-||| measure2 v = rewrite plusCommutative n i in
-|||          let res = measure v
-|||          in res
 
 |||Run all simulations : start with 0 qubit and measure all qubits at the end (end with 0 qubit)
 export

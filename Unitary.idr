@@ -62,6 +62,10 @@ public export
 (@@) : Unitary n -> Unitary n -> Unitary n
 (@@) = compose
 
+public export
+(.) : Unitary n -> Unitary n -> Unitary n
+(.) = compose
+
 ---------------------------ADJOINT-----------------------------
 |||Find the adjoint of a circuit
 public export

@@ -23,9 +23,9 @@ public export
 Random Int where
   -- Generate a random value within [-2^31, 2^31-1].
   randomIO =
-    let maxInt = shiftL 1 31 - 1
-        minInt = negate $ shiftL 1 31
-        range = maxInt - minInt
+    let maxInt = 2147483647
+        minInt = -2147483648
+        range = maxInt - minInt -- works on 64 bit xD
      in map (+ minInt) $ liftIO $ randomInt range
 
   -- Generate a random value within [lo, hi].
