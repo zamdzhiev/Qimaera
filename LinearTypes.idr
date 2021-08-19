@@ -1,5 +1,6 @@
 module LinearTypes 
 
+import Data.Vect
 
 infixr 10 ::
 infix 5 #
@@ -38,3 +39,14 @@ public export
 (++) (x::xs) ys = x :: (xs ++ ys)
 
 
+public export
+consLin : (1 _ : Bool) -> (1 _ : Vect n Bool) -> Vect (S n) Bool
+consLin False [] = [False]
+consLin False (x :: xs) = (False :: (x `consLin` xs))
+consLin True [] = [True]
+consLin True (x :: xs) = (True :: (x `consLin` xs))
+
+public export
+convert : (1 _ : LVect n Bool) -> Vect n Bool
+convert [] = []
+convert (x :: xs) = x `consLin` (convert xs)

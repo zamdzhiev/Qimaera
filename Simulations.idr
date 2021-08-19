@@ -21,6 +21,7 @@ export
 data Qubit : Type where
   MkQubit : (n : Nat) -> Qubit
 
+
 ||| The QuantumState interface is used to abstract over the representation of a
 ||| quantum state. It is parameterised by the number of qubits it contains.
 export
@@ -62,24 +63,31 @@ interface QuantumState (t : Nat -> Type) where
   public export
   measure : {n : Nat} -> {i : Nat} -> (1 _ : LVect i Qubit) -> QStateT (t (i + n)) (t n) (Vect i Bool)
 
+  ||| Measure only one qubit
+  measureQubit : {n : Nat} -> (1 _ : Qubit) -> QStateT (t (S n)) (t n) Bool
+  measureQubit q = do
+    [b] <- measure [q]
+    pure b
+
   ||| Same as measure, but with an initial state of n + i instead of i + n qubits to help with theorem proving in some cases
   -- public export
   -- measure2 : {n : Nat} -> {i : Nat} -> (LVect i Qubit) -> QStateT (t (n + i)) (t n) (Vect i Bool)
   -- measure2 v = rewrite plusCommutative n i in measure v
 
   ||| Measure all qubits in a quantum state
+  ||| Because of a bug in Idris2, we use the implementation below.
+  ||| However, the implementation commented out is preferable if the bug gets fixed.
   public export
-  measureAll : {n : Nat} -> (LVect n Qubit) -> QStateT (t n) (t 0) (Vect n Bool)
-  -- measureAll qs = let res = measure qs in
-  --                    rewrite sym $ plusZeroRightNeutral n in res
+  measureAll : {n : Nat} -> (1 _ : LVect n Qubit) -> QStateT (t n) (t 0) (Vect n Bool)
+  measureAll [] = pure []
+  measureAll (q :: qs) = do
+                            b <- measureQubit q
+                            bs <- measureAll qs
+                            pure (b `consLin` bs)
+  --measureAll qs = rewrite sym $ plusZeroRightNeutral n in measure qs
                           
 
 
-  ||| Measure only one qubit
-  measureQubit : {n : Nat} -> (1 _ : Qubit) -> QStateT (t (S n)) (t n) Bool
-  measureQubit q = do
-    [b] <- measure [q]
-    pure b
 
   ||| Execute a quantum operation : start and finish with trivial quantum state
   ||| (0 qubits) and measure 'n' qubits in the process
@@ -319,13 +327,12 @@ applyUnitarySimulated q u = MkQST (applyUnitary' q u)
 
 ------------MEASURE QUBITS
 
-|||Measure some qubits in a quantum state
+||| Measure some qubits in a quantum state
 export
 measureSimulated : {n : Nat} -> {i : Nat} -> (1 _ : LVect i Qubit) -> QuantumOp (i + n) n (Vect i Bool)
 measureSimulated v = MkQST (measureQubits' v)
 
-
-|||Run all simulations : start with 0 qubit and measure all qubits at the end (end with 0 qubit)
+||| Run all simulations : start with 0 qubit and measure all qubits at the end (end with 0 qubit)
 export
 runSimulated : QuantumOp 0 0 (Vect n Bool) -> IO (Vect n Bool)
 runSimulated s = LIO.run (do

@@ -73,7 +73,7 @@ grover n oracle nbIter = do
     w <- run (do
                  q <- newQubits {t=t} (n + p)
                  q <- applyUnitary q circuit
-                 v <- measure2 q
+                 v <- measureAll q
                  pure v
                  )
     pure (take n w)
