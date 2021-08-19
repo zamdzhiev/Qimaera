@@ -1,16 +1,12 @@
 * acknowledge from where we took the code for LIO, random number generation, etc.
   - links in the source files, license, etc.
 
-* make sure code compiles with Idris2-0.4.0
-  - find a workaround for the bug in measure2
-  - or find a workaround for the code in VQE.idr and Grover.idr
-
 * more comments and documentation
   - proper identation after comment
 
 * implement QAOA
 
-* implement more useful algorithms in general
+* implement more algorithms in general
 
 * should we implement oracle support?
   - Vladimir: not sure how useful this is

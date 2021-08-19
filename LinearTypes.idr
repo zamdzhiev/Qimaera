@@ -42,11 +42,11 @@ public export
 public export
 consLin : (1 _ : Bool) -> (1 _ : Vect n Bool) -> Vect (S n) Bool
 consLin False [] = [False]
-consLin False (x :: xs) = (False :: (x `consLin` xs))
+consLin False (x :: xs) = False :: x :: xs
 consLin True [] = [True]
-consLin True (x :: xs) = (True :: (x `consLin` xs))
+consLin True (x :: xs) = True :: x :: xs
 
 public export
-convert : (1 _ : LVect n Bool) -> Vect n Bool
-convert [] = []
-convert (x :: xs) = x `consLin` (convert xs)
+toVect : (1 _ : LVect n Bool) -> Vect n Bool
+toVect [] = []
+toVect (x :: xs) = x `consLin` (toVect xs)
