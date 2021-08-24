@@ -22,7 +22,6 @@ export
 data Qubit : Type where
   MkQubit : (n : Nat) -> Qubit
 
-
 ||| The QuantumState interface is used to abstract over the representation of a
 ||| quantum state. It is parameterised by the number of qubits it contains.
 export
@@ -30,10 +29,15 @@ interface QuantumState (t : Nat -> Type) where
 
   ||| Prepare 'p' new qubits in state |00...0>
   newQubits : (p : Nat) -> QStateT (t n) (t (n+p)) (LVect p Qubit)
+  newQubits Z     = rewrite plusZeroRightNeutral n in pure []
+  newQubits (S k) = rewrite lemmaPlusSRight n k in do
+    q <- newQubit
+    qs <- newQubits k
+    pure (q :: qs)
 
   ||| Prepare a single new qubit in state |0>
-  newQubit : QStateT (t n) (t (n+1)) Qubit
-  newQubit = do
+  newQubit : QStateT (t n) (t (S n)) Qubit
+  newQubit = rewrite sym $ lemmaplusOneRight n in do
     [q] <- newQubits 1
     pure q
 
@@ -63,6 +67,11 @@ interface QuantumState (t : Nat -> Type) where
   ||| Measure some qubits in a quantum state
   public export
   measure : {n : Nat} -> {i : Nat} -> (1 _ : LVect i Qubit) -> QStateT (t (i + n)) (t n) (Vect i Bool)
+  measure [] = pure []
+  measure (q :: qs) = do
+    b <- measureQubit q
+    bs <- measure qs
+    pure (b `consLin` bs)
 
   ||| Measure only one qubit
   measureQubit : {n : Nat} -> (1 _ : Qubit) -> QStateT (t (S n)) (t n) Bool
@@ -80,16 +89,13 @@ interface QuantumState (t : Nat -> Type) where
   ||| However, the implementation commented out is preferable if the bug gets fixed.
   public export
   measureAll : {n : Nat} -> (1 _ : LVect n Qubit) -> QStateT (t n) (t 0) (Vect n Bool)
-  measureAll [] = pure []
+  measureAll []        = pure []
   measureAll (q :: qs) = do
                             b <- measureQubit q
                             bs <- measureAll qs
                             pure (b `consLin` bs)
   --measureAll qs = rewrite sym $ plusZeroRightNeutral n in measure qs
                           
-
-
-
   ||| Execute a quantum operation : start and finish with trivial quantum state
   ||| (0 qubits) and measure 'n' qubits in the process
   run : QStateT (t 0) (t 0) (Vect n Bool) -> IO (Vect n Bool)
@@ -110,15 +116,10 @@ public export
 QuantumOp : Nat -> Nat -> Type -> Type
 QuantumOp n m t = QStateT (SimulatedState n) (SimulatedState m) t
 
+------ SIMULATION : AUXILIARY (PRIVATE) FUNCTIONS ------
 
 
-
-
-
------- SIMULATE CIRCUITS : AUXILIARY (PRIVATE) FUNCTIONS ------
-
-
-|||Find an element in a list : used to find the wire of a qubit
+||| Find an element in a list : used to find the wire of a qubit
 private
 listIndex' : {n : Nat} -> Vect n Qubit -> Qubit -> Nat
 listIndex' [] _ = 0
@@ -136,7 +137,7 @@ listIndices qs (x :: xs) =
       (qs2 # xs') # ys = listIndices qs' xs
   in (qs2 # (x' :: xs')) # (y :: ys)
 
-|||Remove an element at a given index in the vector
+||| Remove an element at a given index in the vector
 private 
 removeElem : {n : Nat} -> Vect (S n) Qubit -> Nat -> Vect n Qubit
 removeElem (x :: xs) 0 = xs
@@ -145,7 +146,7 @@ removeElem (x :: xs) (S k) = case xs of
                                   y :: ys => x :: removeElem xs k
 
 
-|||add the indices of the new qubits to the vector in the SimulatedState
+||| add the indices of the new qubits to the vector in the SimulatedState
 private 
 newQubitsPointers : (p : Nat) -> (counter : Nat) -> LFstPair (LVect p Qubit) (Vect p Qubit)
 newQubitsPointers 0 _ = ([] # [])
@@ -153,7 +154,7 @@ newQubitsPointers (S p) counter =
   let (q # v) = newQubitsPointers p (S counter)
   in (MkQubit counter :: q) #  (MkQubit counter :: v)
 
-|||Auxiliary function for applying a circuit to some qubits
+||| Auxiliary function for applying a circuit to some qubits
 private
 applyUnitary' : {n : Nat} -> {i : Nat} ->
                 (1 _ : LVect i Qubit) -> Unitary i -> (1 _ : SimulatedState n) -> R (LPair (SimulatedState n) (LVect i Qubit))
@@ -181,7 +182,7 @@ applyUnitary' v u q =
       in MkSimulatedState (cn `matrixMult` qst) q counter
 
 
-|||Auxiliary function for measurements
+||| Auxiliary function for measurements
 private
 measure' : {n : Nat} -> (i : Nat) ->
            (1 _ : SimulatedState (S n)) ->
@@ -203,7 +204,7 @@ measure' {n} i (MkSimulatedState v w counter) = do
        let proj = multScalarMatrix (inv (sqrt norm21) :+ 0) projection1
        pure1 (MkSimulatedState (projectState {n} proj i True) newQubits counter # True)
 
-|||Auxiliary function for measurements
+||| Auxiliary function for measurements
 private
 measureQubits' : {n : Nat} -> {i : Nat} ->
                  (1 _ : LVect i Qubit) ->
@@ -220,8 +221,6 @@ measureQubits' (x :: xs) qs = do
 ------- SIMULATE CIRCUITS : OPERATIONS ON QUANTUM STATES ------
 
 
-----------ADD NEW QUBITS TO QUNTUM STATES
-
 ||| Add new qubits to a Quantum State
 export
 newQubitsSimulated : (p : Nat) -> QuantumOp n (n+p) (LVect p Qubit)
@@ -233,16 +232,11 @@ newQubitsSimulated p = MkQST (newQubits' p) where
     in pure1 (MkSimulatedState (tensorProductVect qs s') (v ++ v') (counter + q) # qubits)
 
 
--------------APPLY CIRCUITS TO QUANTUM STATES
-
-
-||| Apply a circuit to a SimulatedState
+||| Apply a unitary circuit to a SimulatedState
 export
 applyUnitarySimulated : {n : Nat} -> {i : Nat} ->
                (1 _ : LVect i Qubit) -> Unitary i -> QuantumOp n n (LVect i Qubit)
 applyUnitarySimulated q u = MkQST (applyUnitary' q u)
-
-------------MEASURE QUBITS
 
 ||| Measure some qubits in a quantum state
 export
@@ -258,7 +252,6 @@ runSimulated s = LIO.run (do
        [] => pure []
        (x :: xs) => pure (x :: xs))
  
-
 export
 QuantumState SimulatedState where
   newQubits    = newQubitsSimulated

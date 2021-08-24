@@ -12,7 +12,10 @@ export
 lemmaplusOneRight : (n : Nat) -> n + 1 = S n
 lemmaplusOneRight n = rewrite plusCommutative n 1 in Refl
 
-
+export
+lemmaPlusSRight : (n : Nat) -> (k : Nat) -> plus n (S k) = S (plus n k)
+lemmaPlusSRight Z     k = Refl
+lemmaPlusSRight (S p) k = rewrite lemmaPlusSRight p k in Refl
 
 --LEMMAS ABOUT &&
 
