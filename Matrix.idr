@@ -3,6 +3,7 @@ module Matrix
 import Data.Vect
 import Data.Nat
 import Complex
+import Lemmas
 
 %default total
 
@@ -125,3 +126,114 @@ printMatrix v = "[ " ++ printMat' v where
   printMat' (x :: xs) = printVector x ++ "\n  " ++ printMat' xs
 
 
+------------ Lemmas about matrices ---------------------------------------
+
+export
+powPlusMultZeroRightNeutral : (n : Nat) -> plus (power 2 n) (mult 0 (power 2 n)) = power 2 n
+powPlusMultZeroRightNeutral n = rewrite plusZeroRightNeutral (power 2 n) in Refl
+
+export
+multPowerPowerPlus : (base, exp, exp' : Nat) ->
+                     power base (exp + exp') = (power base exp) * (power base exp')
+multPowerPowerPlus base Z       exp' = 
+    rewrite plusZeroRightNeutral (power base exp') in Refl
+multPowerPowerPlus base (S exp) exp' =
+  rewrite multPowerPowerPlus base exp exp' in
+    rewrite sym $ multAssociative base (power base exp) (power base exp') in
+       Refl
+
+
+export
+powPlusZeroRightNeutral : {m : Nat} -> Matrix (plus (plus (power 2 m) (plus (power 2 m) 0)) 0) 1 -> Matrix (plus (power 2 m) (plus (power 2 m) 0)) 1
+powPlusZeroRightNeutral mat = rewrite sym $ plusZeroRightNeutral (plus (power 2 m) (plus (power 2 m) 0)) in mat
+
+
+
+
+
+------------ LINEAR-ALGEBRAIC SIMULATION: MATRIX OPERATIONS ---------------
+
+
+
+export
+matrixH : Matrix 2 2
+matrixH = [[(1/(sqrt 2)) :+ 0, (1/(sqrt 2)) :+ 0], [(1/(sqrt 2)) :+ 0 , (-1/(sqrt 2)) :+ 0]]
+
+export
+matrixP : Double -> Matrix 2 2
+matrixP p = [[1 , 0] , [0, cis p]]
+
+export
+matrixCNOT : Matrix 4 4
+matrixCNOT = [[1,0,0,0] , [0,1,0,0] , [0,0,0,1] , [0,0,1,0]]
+
+export
+matrixX : Matrix 2 2
+matrixX = [[0,1] , [1,0]]
+
+export
+matrixKet0Bra0 : Matrix 2 2
+matrixKet0Bra0 = [[1,0] , [0,0]]
+
+export
+matrixKet1Bra1 : Matrix 2 2
+matrixKet1Bra1 = [[0,0] , [0,1]]
+
+export
+simpleTensor : Matrix 2 2 -> (n : Nat) -> Nat -> Matrix (power 2 n) (power 2 n)
+simpleTensor _ 0 _ = [[1]]
+simpleTensor m (S n) 0 = m `tensorProduct` (simpleTensor m n (S n))
+simpleTensor m (S n) (S k) = (matrixId 2) `tensorProduct` (simpleTensor m n k)
+
+export
+tensorCnotAux : (n : Nat) -> (control : Nat) -> (target : Nat) -> Matrix (power 2 n) (power 2 n)
+tensorCnotAux 0 _ _ = [[1]]
+tensorCnotAux (S n) 0 0 = (matrixId 2) `tensorProduct` (tensorCnotAux n (S n) (S n)) --should not be happening
+tensorCnotAux (S n) 0 (S m) = matrixKet1Bra1 `tensorProduct` (tensorCnotAux n (S n) m)
+tensorCnotAux (S n) (S k) 0 = matrixX `tensorProduct` (tensorCnotAux n k (S n))
+tensorCnotAux (S n) (S k) (S m) = (matrixId 2) `tensorProduct` (tensorCnotAux n k m)
+
+export
+tensorCNOT : (n : Nat) -> (control : Nat) -> (target : Nat) -> Matrix (power 2 n) (power 2 n)
+tensorCNOT nbQbits control target = (simpleTensor matrixKet0Bra0 nbQbits control) `addMatrix` (tensorCnotAux nbQbits control target)
+
+export
+tensorProductVect : Matrix (power 2 n) 1 -> Matrix (power 2 p) 1 -> Matrix (power 2 (n + p)) 1
+tensorProductVect xs ys =
+  rewrite multPowerPowerPlus 2 n p
+  in tensorProduct xs ys
+
+export
+normState2 : Matrix n 1 -> Double
+normState2 [] = 0
+normState2 ([x] :: xs) = let m = magnitude x in m * m + normState2 xs
+
+
+export
+toTensorBasis : Matrix n 2 -> Matrix (power 2 n) 1
+toTensorBasis [] = [[1]]
+toTensorBasis ([x,y] :: xs) = tensorProduct [[x] , [y]] (toTensorBasis xs)
+
+export
+ket0 : (n : Nat) -> Matrix n 2
+ket0 0 = []
+ket0 (S k) = [1 , 0] :: ket0 k
+
+export
+inv : Double -> Double
+inv x = if x == 0 then 0 else 1/x
+
+export
+projectState : {n : Nat} -> Matrix (power 2 (S n)) 1 -> (i : Nat) -> 
+               Bool -> Matrix (power 2 n) 1
+projectState v 0 b =
+  let (v1, v2) = splitAt (power 2 n) v in
+      case b of
+           True => rewrite sym $ powPlusMultZeroRightNeutral n in v2
+           False => v1
+projectState {n = 0} _ (S k) _ = [[1]]
+projectState {n = S m} v (S k) b =
+  let (v1, v2) = splitAt (power 2 (S m)) v
+      v1' = projectState {n = m} v1 k b
+      v2' = projectState {n = m} (powPlusZeroRightNeutral v2) k b
+  in rewrite plusZeroRightNeutral (power 2 m) in v1' ++ v2'

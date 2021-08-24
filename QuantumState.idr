@@ -16,7 +16,8 @@ import Unitary
 
 ||| The Qubit type is used to identify individual qubits. The Nat argument is
 ||| used to uniquely identify a qubit. This type does *not* carry any quantum
-||| state information.
+||| state information. The constructor MkQubit is *private* in order to prevent
+||| pattern matching by users of the library.
 export
 data Qubit : Type where
   MkQubit : (n : Nat) -> Qubit
@@ -97,10 +98,10 @@ interface QuantumState (t : Nat -> Type) where
 
 
 
------ SIMULATE CIRCUITS : QUANTUM STATES AND QUBITS -----------
+----- IMPLEMENTATION OF QUANTUMSTATE: LINEAR-ALGEBRAIC SIMULATION -----------
 
 
-||| SimulatedState : vector representation of the quantum state, vector of indices of the qubits, counter
+||| SimulatedState : linear-algebraic vector representation of the quantum state, vector of indices of the qubits, counter
 export
 data SimulatedState : Nat -> Type where
   MkSimulatedState : {n : Nat} -> Matrix (power 2 n) 1 -> Vect n Qubit -> Nat -> SimulatedState n
@@ -110,90 +111,6 @@ QuantumOp : Nat -> Nat -> Type -> Type
 QuantumOp n m t = QStateT (SimulatedState n) (SimulatedState m) t
 
 
-------------SIMULATE CIRCUITS : MATRIX OPERATIONS--------------
-
-private
-matrixH : Matrix 2 2
-matrixH = [[(1/(sqrt 2)) :+ 0, (1/(sqrt 2)) :+ 0], [(1/(sqrt 2)) :+ 0 , (-1/(sqrt 2)) :+ 0]]
-
-private
-matrixP : Double -> Matrix 2 2
-matrixP p = [[1 , 0] , [0, cis p]]
-
-private
-matrixCNOT : Matrix 4 4
-matrixCNOT = [[1,0,0,0] , [0,1,0,0] , [0,0,0,1] , [0,0,1,0]]
-
-private
-matrixX : Matrix 2 2
-matrixX = [[0,1] , [1,0]]
-
-private
-matrixKet0Bra0 : Matrix 2 2
-matrixKet0Bra0 = [[1,0] , [0,0]]
-
-private
-matrixKet1Bra1 : Matrix 2 2
-matrixKet1Bra1 = [[0,0] , [0,1]]
-
-private
-simpleTensor : Matrix 2 2 -> (n : Nat) -> Nat -> Matrix (power 2 n) (power 2 n)
-simpleTensor _ 0 _ = [[1]]
-simpleTensor m (S n) 0 = m `tensorProduct` (simpleTensor m n (S n))
-simpleTensor m (S n) (S k) = (matrixId 2) `tensorProduct` (simpleTensor m n k)
-
-private
-tensorCnotAux : (n : Nat) -> (control : Nat) -> (target : Nat) -> Matrix (power 2 n) (power 2 n)
-tensorCnotAux 0 _ _ = [[1]]
-tensorCnotAux (S n) 0 0 = (matrixId 2) `tensorProduct` (tensorCnotAux n (S n) (S n)) --should not be happening
-tensorCnotAux (S n) 0 (S m) = matrixKet1Bra1 `tensorProduct` (tensorCnotAux n (S n) m)
-tensorCnotAux (S n) (S k) 0 = matrixX `tensorProduct` (tensorCnotAux n k (S n))
-tensorCnotAux (S n) (S k) (S m) = (matrixId 2) `tensorProduct` (tensorCnotAux n k m)
-
-private
-tensorCNOT : (n : Nat) -> (control : Nat) -> (target : Nat) -> Matrix (power 2 n) (power 2 n)
-tensorCNOT nbQbits control target = (simpleTensor matrixKet0Bra0 nbQbits control) `addMatrix` (tensorCnotAux nbQbits control target)
-
-private
-tensorProductVect : Matrix (power 2 n) 1 -> Matrix (power 2 p) 1 -> Matrix (power 2 (n + p)) 1
-tensorProductVect xs ys =
-  rewrite multPowerPowerPlus 2 n p
-  in tensorProduct xs ys
-
-private
-normState2 : Matrix n 1 -> Double
-normState2 [] = 0
-normState2 ([x] :: xs) = let m = magnitude x in m * m + normState2 xs
-
-
-private
-toTensorBasis : Matrix n 2 -> Matrix (power 2 n) 1
-toTensorBasis [] = [[1]]
-toTensorBasis ([x,y] :: xs) = tensorProduct [[x] , [y]] (toTensorBasis xs)
-
-private
-ket0 : (n : Nat) -> Matrix n 2
-ket0 0 = []
-ket0 (S k) = [1 , 0] :: ket0 k
-
-private
-inv : Double -> Double
-inv x = if x == 0 then 0 else 1/x
-
-private
-projectState : {n : Nat} -> Matrix (power 2 (S n)) 1 -> (i : Nat) -> 
-               Bool -> Matrix (power 2 n) 1
-projectState v 0 b =
-  let (v1, v2) = splitAt (power 2 n) v in
-      case b of
-           True => rewrite sym $ powPlusMultZeroRightNeutral n in v2
-           False => v1
-projectState {n = 0} _ (S k) _ = [[1]]
-projectState {n = S m} v (S k) b =
-  let (v1, v2) = splitAt (power 2 (S m)) v
-      v1' = projectState {n = m} v1 k b
-      v2' = projectState {n = m} (powPlusZeroRightNeutral v2) k b
-  in rewrite plusZeroRightNeutral (power 2 m) in v1' ++ v2'
 
 
 

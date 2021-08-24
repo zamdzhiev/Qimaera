@@ -4,7 +4,6 @@ import Data.Nat
 import Data.Vect
 import Decidable.Equality
 import Injection
-import Matrix
 import Complex
 
 %default total
@@ -227,30 +226,4 @@ allSmallerPlus n p (x :: xs) prf =
       p2 = lemmaTransLTLTE x n (n + p) p1 (lemmaLTEAddR n p)
       p3 = lemmaAndLeft prf
   in lemmaAnd p2 (allSmallerPlus n p xs p3)
-
-
-
-
-
---LEMMAS USED FOR SIMULATIONS
-
-export
-powPlusMultZeroRightNeutral : (n : Nat) -> plus (power 2 n) (mult 0 (power 2 n)) = power 2 n
-powPlusMultZeroRightNeutral n = rewrite plusZeroRightNeutral (power 2 n) in Refl
-
-export
-multPowerPowerPlus : (base, exp, exp' : Nat) ->
-                     power base (exp + exp') = (power base exp) * (power base exp')
-multPowerPowerPlus base Z       exp' = 
-    rewrite plusZeroRightNeutral (power base exp') in Refl
-multPowerPowerPlus base (S exp) exp' =
-  rewrite multPowerPowerPlus base exp exp' in
-    rewrite sym $ multAssociative base (power base exp) (power base exp') in
-       Refl
-
-
-export
-powPlusZeroRightNeutral : {m : Nat} -> Matrix (plus (plus (power 2 m) (plus (power 2 m) 0)) 0) 1 -> Matrix (plus (power 2 m) (plus (power 2 m) 0)) 1
-powPlusZeroRightNeutral mat = rewrite sym $ plusZeroRightNeutral (plus (power 2 m) (plus (power 2 m) 0)) in mat
-
 
