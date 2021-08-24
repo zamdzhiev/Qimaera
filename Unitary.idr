@@ -360,8 +360,19 @@ drawGate : {n : Nat} -> Unitary n -> Vect n String
 drawGate {n} IdGate = newWireQVect n
 drawGate (H i g) = addSymbol i False ("- H -", "-----") (drawGate g)
 drawGate (P p i g) =
-  let s = printPhase p 0.001 "π"
-  in addSymbol i False ("- U(" ++ s ++ ") -", drawWirePhase (length s + 7)) (drawGate g)
+  let epsilon = 0.001 in
+  if pi/4 - epsilon <= p && pi/4 + epsilon >= p
+    then addSymbol i False ("- T -", "-----") (drawGate g)
+  else if -pi/4 - epsilon <= p && -pi/4 + epsilon >= p
+    then addSymbol i False ("- T+ -", "------") (drawGate g)
+  else if pi/2 - epsilon <= p && pi/2 + epsilon >= p
+    then addSymbol i False ("- S -", "-----") (drawGate g)
+  else if -pi/2 - epsilon <= p && -pi/2 + epsilon >= p
+    then addSymbol i False ("- S+ -", "------") (drawGate g)
+  else if pi - epsilon <= p && pi + epsilon >= p
+    then addSymbol i False ("- Z -", "-----") (drawGate g)
+  else let s = printPhase p epsilon "π"
+  in addSymbol i False ("- P(" ++ s ++ ") -", drawWirePhase (length s + 7)) (drawGate g)
 drawGate (CNOT i j g) = addSymbolCNOT (i,j) False False (drawGate g)
 
 
