@@ -91,9 +91,9 @@ interface QuantumState (t : Nat -> Type) where
   measureAll : {n : Nat} -> (1 _ : LVect n Qubit) -> QStateT (t n) (t 0) (Vect n Bool)
   measureAll []        = pure []
   measureAll (q :: qs) = do
-                            b <- measureQubit q
-                            bs <- measureAll qs
-                            pure (b `consLin` bs)
+    b <- measureQubit q
+    bs <- measureAll qs
+    pure (b `consLin` bs)
   --measureAll qs = rewrite sym $ plusZeroRightNeutral n in measure qs
                           
   ||| Execute a quantum operation : start and finish with trivial quantum state
