@@ -8,5 +8,7 @@
 
 * implement more algorithms in general
 
+* write default applyUnitary implementation after the Idris2 developers fix the "rewrite linearity" bug
+
 * should we implement oracle support?
   - Vladimir: not sure how useful this is
