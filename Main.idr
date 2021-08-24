@@ -14,7 +14,7 @@ import Grover
 import AlterningBitsOracle
 import VQE
 import Complex
-import Simulations
+import QuantumState
 
 %default total
 testDepth : Unitary 3
@@ -62,8 +62,6 @@ main = do
   putStrLn (show (depth testDepth))
 --  drawTeleportation
 --  run1000Teleportation
---  v <- runSimulations testBreak
---  putStrLn (show v)
 --  putStrLn "\n\n\nQuantum Fourier Transform for n = 3"
 --  draw (qft 3)
 --  putStrLn "\nSmall test Grover"

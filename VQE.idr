@@ -9,7 +9,7 @@ import Injection
 import LinearTypes
 import Complex
 import Random
-import Simulations
+import QuantumState
 
 %default total
 

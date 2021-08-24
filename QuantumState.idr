@@ -1,4 +1,4 @@
-module Simulations
+module QuantumState
 
 import Data.Vect
 import Data.Nat

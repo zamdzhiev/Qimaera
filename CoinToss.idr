@@ -3,7 +3,7 @@ module CoinToss
 import Data.Vect
 import Data.List
 import QStateT
-import Simulations
+import QuantumState
 
 ||| A quantum state transformer which realises a fair coin toss in the obvious way:
 ||| first create a new qubit in state |0>

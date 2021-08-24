@@ -11,4 +11,4 @@
 * should we implement oracle support?
   - Vladimir: not sure how useful this is
 
-* move matrix stuff from Simulations.idr to Matrix.idr
+* move matrix stuff from QuantumState.idr to Matrix.idr

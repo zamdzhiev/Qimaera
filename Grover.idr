@@ -8,7 +8,7 @@ import Lemmas
 import LIO
 import QStateT
 import AlterningBitsOracle
-import Simulations
+import QuantumState
 
 %default total
 

@@ -8,7 +8,7 @@ import LIO
 import QStateT
 import Injection
 import LinearTypes
-import Simulations
+import QuantumState
 
 %default total
 
@@ -27,7 +27,8 @@ unitary_correction b1 b2 = (if b2 then XGate else IdGate) `compose` (if b1 then 
 
 ||| The Quantum Teleportation Protocol as a state transformer.
 export
-teleportation : {t : Nat -> Type} -> QuantumState t => (1 _ : Qubit) -> QStateT (t 1) (t 1) (LFstPair Qubit (Vect 2 Bool))
+teleportation : {t : Nat -> Type} -> QuantumState t =>
+                (1 _ : Qubit) -> QStateT (t 1) (t 1) (LFstPair Qubit (Vect 2 Bool))
 teleportation q0 = do
   [q1, q2] <- newQubits 2
   [q0,q1,q2] <- applyUnitary [q0,q1,q2] telep1

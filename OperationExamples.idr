@@ -7,7 +7,7 @@ import LIO
 import QStateT
 import Injection
 import LinearTypes
-import Simulations
+import QuantumState
 
 quantum_operation : QuantumOp 0 1 Qubit
 quantum_operation = do
