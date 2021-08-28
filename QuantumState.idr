@@ -7,10 +7,10 @@ import System.File
 import Injection
 import Matrix
 import Complex
-import Random
+import System.Random
 import Lemmas
 import QStateT
-import LIO
+import Control.Linear.LIO
 import LinearTypes
 import Unitary
 

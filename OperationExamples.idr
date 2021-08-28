@@ -3,7 +3,7 @@ module OperationExamples
 import Data.Nat
 import Data.Vect
 import Unitary
-import LIO
+import Control.Linear.LIO
 import QStateT
 import Injection
 import LinearTypes

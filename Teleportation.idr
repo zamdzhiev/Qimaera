@@ -4,7 +4,7 @@ import Data.Nat
 import Data.List
 import Data.Vect
 import Unitary
-import LIO
+import Control.Linear.LIO
 import QStateT
 import Injection
 import LinearTypes
@@ -63,14 +63,3 @@ drawTeleportation = do
   putStrLn "Result of measurement on the last qubit:"
   putStrLn (show b3)
 
-||| Call the drawTeleportation function (using the SimulatedState implementation)
-||| then execute the runTeleportation function 1000 times and report on the
-||| observed measurement results on the third qubit
-||| (which is in state |+> at the end of the teleportation protocol).
-main : IO ()
-main = do
-  drawTeleportation {t = SimulatedState}
-  l <- sequence (Data.List.replicate 1000 (runTeleportation {t = SimulatedState}))
-  let nbT = length $ filter (\x => (last x) == True) l
-  putStrLn "\n\nFor 1000 measurements"
-  putStrLn ("Number of True measurements : " ++ show nbT) 

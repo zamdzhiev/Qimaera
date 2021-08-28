@@ -1,11 +1,13 @@
 module Grover
+
 import Data.Nat
 import Data.Vect
 import Decidable.Equality
 import Unitary
 import Injection
+import LinearTypes
 import Lemmas
-import LIO
+import Control.Linear.LIO
 import QStateT
 import AlterningBitsOracle
 import QuantumState

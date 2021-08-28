@@ -2,12 +2,13 @@ module Main
 
 import Data.Nat
 import Data.Vect
+import Data.List
 import LinearTypes
-import LIO
+import Control.Linear.LIO
 import Unitary
 import QStateT
 import Teleportation
-import Random
+import System.Random
 import Injection
 import QFT
 import Grover
@@ -15,6 +16,7 @@ import AlterningBitsOracle
 import VQE
 import Complex
 import QuantumState
+import CoinToss
 
 %default total
 testDepth : Unitary 3
@@ -56,14 +58,49 @@ testCH = run (
     [q0,q1] <- applyUnitary [q0,q1] controlledH
     measure [q0,q1])
 
+
+-- Perform 1000 fair coin tosses and count the number of heads
+-- (via simulating the quantum dynamics).
+testCoins : IO ()
+testCoins = do
+  let f = coin {t = SimulatedState}
+  s <- sequence (Data.List.replicate 1000 f)
+  let heads = filter (== True) s
+  putStrLn $ "Number of heads: " ++ (show (length heads))
+
+
+export
+testVQE : IO ()
+testVQE = do
+  putStrLn "\nSmall test VQE"
+  w <- VQE {t = SimulatedState} 3 (replicate 8 (replicate 8 0)) 2 1
+  putStrLn (show w)
+  putStrLn "\nprinting another ansatz:"
+  draw (ansatz 2 2 [[1,2],[9,10],[17,18]] [[5,6],[13,14],[21,22]])
+
+||| Call the drawTeleportation function (using the SimulatedState implementation)
+||| then execute the runTeleportation function 1000 times and report on the
+||| observed measurement results on the third qubit
+||| (which is in state |+> at the end of the teleportation protocol).
+export
+testTeleport : IO ()
+testTeleport = do
+  drawTeleportation {t = SimulatedState}
+  l <- sequence (Data.List.replicate 1000 (runTeleportation {t = SimulatedState}))
+  let nbT = length $ filter (\x => (last x) == True) l
+  putStrLn "\n\nFor 1000 measurements"
+  putStrLn ("Number of True measurements : " ++ show nbT) 
+
 export
 main : IO ()
 main = do
-  putStrLn (show (depth testDepth))
+--  testVQE
+--  putStrLn (show (depth testDepth))
+--  testCoins
 --  drawTeleportation
---  run1000Teleportation
+--  testTeleport
 --  putStrLn "\n\n\nQuantum Fourier Transform for n = 3"
---  draw (qft 3)
+  draw (qft 3)
 --  putStrLn "\nSmall test Grover"
 --  v <- testGrover
 --  putStrLn (show v)

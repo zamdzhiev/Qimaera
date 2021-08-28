@@ -3,12 +3,12 @@ module VQE
 import Data.Nat
 import Data.Vect
 import Unitary
-import LIO
+import Control.Linear.LIO
 import QStateT
 import Injection
 import LinearTypes
 import Complex
-import Random
+import System.Random
 import QuantumState
 
 %default total
@@ -58,7 +58,7 @@ ansatz (S n) (S r) (v :: vs) (w :: ws) =
 
 -------------IMAGINARY CLASSICAL OPTIMIZATION PART------------
 
---generate a vector of random doubles
+-- generate a vector of random doubles
 randomVect : (n : Nat) -> IO (Vect n Double)
 randomVect 0 = pure []
 randomVect (S k)  = do
@@ -66,11 +66,11 @@ randomVect (S k)  = do
   v <- randomVect k
   pure (r :: v)
 
---pretend to compute the lowest eigenvalue given the results of the quantum operations
+-- pretend to compute the lowest eigenvalue given the results of the quantum operations
 pretendComputeEnergy : Vect n Bool -> IO Double
 pretendComputeEnergy vs = randomRIO (0,1024)
 
---pretend to compute the parameters for the quantum circuit by classical optimisation using the results of the measurements
+-- pretend to compute the parameters for the quantum circuit by classical optimisation using the results of the measurements
 pretendClassicalWork : (nbQubits : Nat) -> (depth : Nat) ->
                        (resultAnsatz : Vect nbQubits Bool) -> 
                        (hamiltonian : Vect (power 2 nbQubits) (Vect (power 2 nbQubits) (Complex Double))) -> 
@@ -108,13 +108,3 @@ VQE : {t : Nat -> Type} -> QuantumState t =>
 VQE n m k d = do
   res <- VQE' {t=t} n m k d
   pretendComputeEnergy res
-
-
-export
-main : IO ()
-main = do
-  putStrLn "\nSmall test VQE"
-  w <- VQE {t = SimulatedState} 3 (replicate 8 (replicate 8 0)) 2 1
-  putStrLn (show w)
-  putStrLn "\nprinting another ansatz:"
-  draw (ansatz 2 2 [[1,2],[9,10],[17,18]] [[5,6],[13,14],[21,22]])

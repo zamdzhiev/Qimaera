@@ -2,7 +2,7 @@ module QStateT
 
 import Control.Monad.State
 import LinearTypes
-import LIO
+import Control.Linear.LIO
 
 %default total
 

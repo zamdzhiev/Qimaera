@@ -1,0 +1,13 @@
+package qimaera
+version = 0.1
+depends = contrib
+brief = "Idris2 libraries for (variational) quantum programming"
+readme = "README.md"
+license = "MIT"
+authors = "Liliane-Joy Dandy, Vladimir Zamdzhiev"
+maintainers = "Liliane-Joy Dandy, Vladimir Zamdzhiev"
+homepage = "https://github.com/zamdzhiev/Qimaera"
+sourceloc = "https://github.com/zamdzhiev/Qimaera"
+bugtracker = "https://github.com/zamdzhiev/Qimaera/issues"
+
+modules = Unitary, QStateT, QuantumState, VQE, Grover, CoinToss, QFT, Teleportation, OptimiseUnitary, OperationExamples

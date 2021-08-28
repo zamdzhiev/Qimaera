@@ -1,14 +1,14 @@
-* acknowledge from where we took the code for LIO, random number generation, etc.
-  - links in the source files, license, etc.
-
 * more comments and documentation
   - proper identation after comment
+
+* update OperationExamples to abstract syntax and include simulated instances as special case
 
 * implement QAOA
 
 * implement more algorithms in general
 
 * write default applyUnitary implementation after the Idris2 developers fix the "rewrite linearity" bug
+  - see: https://github.com/idris-lang/Idris2/issues/1861
 
 * should we implement oracle support?
   - Vladimir: not sure how useful this is

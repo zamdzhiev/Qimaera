@@ -1,5 +1,6 @@
 {-
-  https://github.com/idris-lang/Idris-dev/blob/master/libs/base/Data/Complex.idr
+  SOURCE:  https://github.com/idris-lang/Idris-dev/blob/master/libs/base/Data/Complex.idr
+  LICENSE: https://raw.githubusercontent.com/idris-lang/Idris-dev/master/LICENSE
   (c) 2012 Copyright Mekeor Melire
 -}
 
