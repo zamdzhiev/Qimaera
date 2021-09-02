@@ -88,7 +88,7 @@ pretendClassicalWork n (S k) v m = do
 
 -------------------PUTTING QUANTUM AND CLASSICAL PARTS TOGETHER : SIMULATIONS------------------
 
-VQE' : {t : Nat -> Type} -> QuantumState t =>
+VQE' : QuantumState t =>
        (n : Nat) -> (hamiltonian : Vect (power 2 n) (Vect (power 2 n) (Complex Double))) -> (nbIter : Nat) -> (depth : Nat) ->
        IO (Vect n Bool)
 VQE' n _ 0 depth = pure (replicate n False)
@@ -102,7 +102,7 @@ VQE' n m (S k) depth = do
     measureAll q)
   
 export
-VQE : {t : Nat -> Type} -> QuantumState t =>
+VQE : QuantumState t =>
       (n : Nat) -> (hamiltonian : Vect (power 2 n) (Vect (power 2 n) (Complex Double))) -> (nbIter : Nat) -> (depth : Nat) ->
       IO Double
 VQE n m k d = do

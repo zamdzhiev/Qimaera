@@ -94,7 +94,7 @@ testTeleport = do
 export
 main : IO ()
 main = do
---  testVQE
+  testVQE
 --  putStrLn (show (depth testDepth))
 --  testCoins
 --  drawTeleportation

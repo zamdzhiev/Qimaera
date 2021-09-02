@@ -25,7 +25,7 @@ data Qubit : Type where
 ||| The QuantumState interface is used to abstract over the representation of a
 ||| quantum state. It is parameterised by the number of qubits it contains.
 export
-interface QuantumState (t : Nat -> Type) where
+interface QuantumState (0 t : Nat -> Type) where
 
   ||| Prepare 'p' new qubits in state |00...0>
   newQubits : (p : Nat) -> QStateT (t n) (t (n+p)) (LVect p Qubit)

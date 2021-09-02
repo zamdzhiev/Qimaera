@@ -27,7 +27,7 @@ unitary_correction b1 b2 = (if b2 then XGate else IdGate) `compose` (if b1 then 
 
 ||| The Quantum Teleportation Protocol as a state transformer.
 export
-teleportation : {t : Nat -> Type} -> QuantumState t =>
+teleportation : QuantumState t =>
                 (1 _ : Qubit) -> QStateT (t 1) (t 1) (LFstPair Qubit (Vect 2 Bool))
 teleportation q0 = do
   [q1, q2] <- newQubits 2
@@ -38,7 +38,7 @@ teleportation q0 = do
   
 ||| Run the teleportation protocol where the qubit to be teleported is in state |+>.
 export
-runTeleportation : {t : Nat -> Type} -> QuantumState t => IO (Vect 3 Bool)
+runTeleportation : QuantumState t => IO (Vect 3 Bool)
 runTeleportation = 
       run (do
         q <- newQubit {t = t}
@@ -50,7 +50,7 @@ runTeleportation =
 
 ||| Print some useful information on the screen obtained by executing runTeleportation.
 export
-drawTeleportation : {t : Nat -> Type} -> QuantumState t => IO ()
+drawTeleportation : QuantumState t => IO ()
 drawTeleportation = do
   [b1, b2, b3] <- runTeleportation {t = t}
   putStrLn "Teleportation Protocol\n\n"

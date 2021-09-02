@@ -8,7 +8,7 @@ import QuantumState
 ||| first create a new qubit in state |0>
 ||| then apply a hadamard gate to it, thereby preparing state |+>
 ||| and finally measure the qubit and return this as the result
-coinT : {t : Nat -> Type} -> QuantumState t => QStateT (t 0) (t 0) (Vect 1 Bool)
+coinT : QuantumState t => QStateT (t 0) (t 0) (Vect 1 Bool)
 coinT = do
   q <- newQubit
   q <- applyH q
@@ -17,7 +17,7 @@ coinT = do
 
 ||| A fair coin toss (as an IO effect) via quantum resources.
 export
-coin : {t : Nat -> Type} -> QuantumState t => IO Bool
+coin : QuantumState t => IO Bool
 coin = do
   [b] <- run (coinT {t = t})
   pure b

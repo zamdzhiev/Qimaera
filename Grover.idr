@@ -68,7 +68,7 @@ grover' n oracle nbIter =
   
 
 public export total
-grover : {t : Nat -> Type} -> QuantumState t =>
+grover : QuantumState t =>
          (n : Nat) -> {p : Nat} -> (oracle : Unitary (n + p)) -> (nbIter : Nat) -> IO (Vect n Bool)
 grover n oracle nbIter = do
     let circuit = grover' n oracle nbIter
