@@ -106,47 +106,47 @@ CNOTGate : Unitary 2
 CNOTGate = CNOT 0 1 IdGate
 
 public export
-T : {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
-T j g = P (pi/4) {n} j {prf} g
+T : (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
+T j g = P (pi/4) j {prf} g
 
 public export
 TGate : Unitary 1
 TGate = T 0 IdGate
 
 public export
-TAdj : {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
-TAdj j g = P (-pi/4) {n} j {prf} g
+TAdj : (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
+TAdj j g = P (-pi/4) j {prf} g
 
 public export
 TAdjGate : Unitary 1
 TAdjGate = TAdj 0 IdGate
 
 public export
-S : {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
-S j g = P (pi/2) {n} j {prf} g
+S : (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
+S j g = P (pi/2) j {prf} g
 
 public export
 SGate : Unitary 1
 SGate = S 0 IdGate
 
 public export
-SAdj : {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
-SAdj j g = P (-pi/2) {n} j {prf} g
+SAdj : (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
+SAdj j g = P (-pi/2) j {prf} g
 
 public export
 SAdjGate : Unitary 1
 SAdjGate = SAdj 0 IdGate
 
 public export
-Z : {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
-Z j g = P pi {n} j {prf} g
+Z : (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
+Z j g = P pi j {prf} g
 
 public export
 ZGate : Unitary 1
 ZGate = Z 0 IdGate
 
 public export
-X : {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
+X : (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
 X j g = H j (Z j (H j g))
 
 public export
