@@ -16,15 +16,15 @@ infixr 10 #
 
 public export
 data Unitary : Nat -> Type where
-  IdGate : {n : Nat} -> Unitary n
-  H      : {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
-  P      : (p : Double) -> {n : Nat} -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
-  CNOT   : {n : Nat} -> (c : Nat) -> (t : Nat) -> 
+  IdGate : Unitary n
+  H      : (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
+  P      : (p : Double) -> (j : Nat) -> {auto prf : (j < n) = True} -> Unitary n -> Unitary n
+  CNOT   : (c : Nat) -> (t : Nat) -> 
             {auto prf1 : (c < n) = True} -> {auto prf2 : (t < n) = True} -> {auto prf3 : (c /= t) = True} -> 
             Unitary n -> Unitary n
 
 
---P p = [[1,0],[0,e^ip]]
+-- P p = [[1,0],[0,e^ip]]
 
 -------------------------------APPLY---------------------------
 |||Apply a smaller circuit of size i to a bigger one of size n
@@ -268,7 +268,7 @@ max v = max' 0 v where
   max' k [] = k
   max' k (x::xs) = if x > k then max' x xs else max' k xs
 
-depth' : Unitary n -> Vect n Nat
+depth' : {n : Nat} -> Unitary n -> Vect n Nat
 depth' IdGate = replicate n 0
 depth' (H j x) =
   let v = depth' x 
@@ -290,7 +290,7 @@ depth' (CNOT c t x) =
               in addDepth (S k) t w
 
 export
-depth : Unitary n -> Nat
+depth : {n : Nat} -> Unitary n -> Nat
 depth g = 
   let v = depth' g 
   in max v
