@@ -17,6 +17,7 @@ import VQE
 import Complex
 import QuantumState
 import CoinToss
+import VanillaQAOA
 
 %default total
 testDepth : Unitary 3
@@ -94,13 +95,13 @@ testTeleport = do
 export
 main : IO ()
 main = do
-  testVQE
+--  testVQE
 --  putStrLn (show (depth testDepth))
 --  testCoins
 --  drawTeleportation
 --  testTeleport
 --  putStrLn "\n\n\nQuantum Fourier Transform for n = 3"
-  draw (qft 3)
+--  draw (qft 3)
 --  putStrLn "\nSmall test Grover"
 --  v <- testGrover
 --  putStrLn (show v)
@@ -111,5 +112,7 @@ main = do
 --  draw (ansatz 4 2 [[1,2,3,4],[9,10,11,12],[17,18,19,20]] [[5,6,7,8],[13,14,15,16],[21,22,23,24]])
 --  [b1,b2] <- testCH
 --  putStrLn (show (b1,b2))
+  v <- QAOA {t = SimulatedState} 2 4 [(0,1), (1,2), (2,3), (3,0)]
+  putStrLn ("result from QAOA : " ++ show v)
   pure ()
 

@@ -153,6 +153,18 @@ public export
 XGate : Unitary 1
 XGate = X 0 IdGate
 
+public export
+RxGate : Double -> Unitary 1
+RxGate p = HGate @@ PGate p @@ HGate
+
+public export
+RyGate : Double -> Unitary 1
+RyGate p = SAdjGate @@ HGate @@ PGate (-p) @@ HGate @@ SGate
+
+public export
+RzGate : Double -> Unitary 1
+RzGate p = PGate p 
+
 ||| Put two qubits initally in state |00> in the Bell state
 public export
 toBellBasis : Unitary 2

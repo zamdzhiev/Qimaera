@@ -20,12 +20,6 @@ import QuantumState
 
 ----------QUANTUM PART : CIRCUIT------------------
 
-Ry : Double -> Unitary 1
-Ry p = SAdjGate @@ HGate @@ (P (-p) 0 (HGate @@ SGate))
-
-Rz : Double -> Unitary 1
-Rz p = PGate p 
-
 export
 linearEntanglement : (n : Nat) -> Unitary n
 linearEntanglement 0 = IdGate
@@ -36,11 +30,11 @@ linearEntanglement (S (S n)) =
 
 tensorPhases : (n : Nat) -> Vect n Double -> Unitary n
 tensorPhases 0 _ = IdGate
-tensorPhases (S k) (x :: xs) = Rz x # (tensorPhases k xs)
+tensorPhases (S k) (x :: xs) = RzGate x # (tensorPhases k xs)
 
 tensorRy : (n : Nat) -> Vect n Double -> Unitary n
 tensorRy 0 _ = IdGate
-tensorRy (S k) (x :: xs) = Ry x # (tensorRy k xs)
+tensorRy (S k) (x :: xs) = RyGate x # (tensorRy k xs)
 
 |||Building the ansatz
 ||| parameters : number of qubits, number of repetitions of the pattern, vectors of parameters for the Ry rotations, vector of parameters for the Rz rotations

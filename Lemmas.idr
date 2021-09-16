@@ -20,15 +20,15 @@ lemmaPlusSRight (S p) k = rewrite lemmaPlusSRight p k in Refl
 --LEMMAS ABOUT &&
 
 export
-lemmaAndRight : {a : Bool} -> {b : Bool} -> (a && b = True) -> (a = True)
-lemmaAndRight {a = True} {b} p =  Refl
-lemmaAndRight {a = False} {b} p impossible
+lemmaAndLeft : {a : Bool} -> {b : Bool} -> (a && b = True) -> (a = True)
+lemmaAndLeft {a = True} {b} p =  Refl
+lemmaAndLeft {a = False} {b} p impossible
 
 export
-lemmaAndLeft : {a : Bool} -> {b : Bool} -> (a && b = True) -> (b = True)
-lemmaAndLeft {a} {b = True} p = Refl
-lemmaAndLeft {a = True} {b = False} p impossible
-lemmaAndLeft {a = False} {b = False} p impossible
+lemmaAndRight : {a : Bool} -> {b : Bool} -> (a && b = True) -> (b = True)
+lemmaAndRight {a} {b = True} p = Refl
+lemmaAndRight {a = True} {b = False} p impossible
+lemmaAndRight {a = False} {b = False} p impossible
 
 export
 lemmaAnd : {a : Bool} -> {b : Bool} -> (a = True) -> (b = True) -> (a && b = True)
@@ -136,18 +136,18 @@ export
 indexInjectiveVect : (j : Nat) -> (n : Nat) -> (v : Vect i Nat) ->
                      {prf : isInjective n v = True} -> {prf1 : j < i = True} ->
                      (index j v < n) = True
-indexInjectiveVect Z n (x :: xs) {prf} = lemmaAndRight (lemmaAndRight prf)
+indexInjectiveVect Z n (x :: xs) {prf} = lemmaAndLeft (lemmaAndLeft prf)
 indexInjectiveVect (S k) n (x :: xs) {prf} =
-      indexInjectiveVect k n xs {prf = lemmaAnd (lemmaAndLeft (lemmaAndRight prf)) (lemmaAndLeft (lemmaAndLeft prf))}
+      indexInjectiveVect k n xs {prf = lemmaAnd (lemmaAndRight (lemmaAndLeft prf)) (lemmaAndRight (lemmaAndRight prf))}
 
 
 export
 different' : (x : Nat) -> (m : Nat) -> (xs : Vect i Nat) ->
              {prf1 : m < i = True} -> {prf2 : isDifferent x xs = True} ->
              (x /= index m xs) = True
-different' x 0 (y :: xs) = lemmaAndRight prf2
+different' x 0 (y :: xs) = lemmaAndLeft prf2
 different' x (S k) (y :: xs) =
-  different' x k xs {prf1} {prf2 = lemmaAndLeft prf2}
+  different' x k xs {prf1} {prf2 = lemmaAndRight prf2}
 
 private
 different'' : (x : Nat) -> (m : Nat) -> (xs : Vect i Nat) ->
@@ -162,11 +162,11 @@ differentIndexInjectiveVect : (c : Nat) -> (t : Nat) -> (n : Nat) -> {prf1 : (c 
                               {prf3 : c < i = True} -> {prf4 : t < i = True} ->
                               (index c v /= index t v) = True
 differentIndexInjectiveVect 0 (S m) n (x :: xs) =
-      different' x m xs {prf1 = prf4} {prf2 = lemmaAndRight (lemmaAndLeft prf2)}
+      different' x m xs {prf1 = prf4} {prf2 = lemmaAndLeft (lemmaAndRight prf2)}
 differentIndexInjectiveVect (S k) 0 n (x :: xs) =
-      different'' x k xs {prf1 = prf3} {prf2 = lemmaAndRight (lemmaAndLeft prf2)}
+      different'' x k xs {prf1 = prf3} {prf2 = lemmaAndLeft (lemmaAndRight prf2)}
 differentIndexInjectiveVect (S k) (S j) n (x :: xs) =
-  let p2 = lemmaAnd (lemmaAndLeft (lemmaAndRight prf2)) (lemmaAndLeft (lemmaAndLeft prf2)) in
+  let p2 = lemmaAnd (lemmaAndRight (lemmaAndLeft prf2)) (lemmaAndRight (lemmaAndRight prf2)) in
   differentIndexInjectiveVect k j n {prf1} xs {prf2 = p2} {prf3} {prf4}
 
 
@@ -225,8 +225,8 @@ export
 allSmallerPlus : (n : Nat) -> (p : Nat) -> (v : Vect k Nat) -> allSmaller v n = True -> allSmaller v (n + p) = True
 allSmallerPlus n p [] prf = Refl
 allSmallerPlus n p (x :: xs) prf = 
-  let p1 = lemmaAndRight prf
+  let p1 = lemmaAndLeft prf
       p2 = lemmaTransLTLTE x n (n + p) p1 (lemmaLTEAddR n p)
-      p3 = lemmaAndLeft prf
+      p3 = lemmaAndRight prf
   in lemmaAnd p2 (allSmallerPlus n p xs p3)
 
