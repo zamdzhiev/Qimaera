@@ -10,4 +10,4 @@ singletonGraph = AddVertex Empty []
 
 -- neighbourhood : (vertex : Fin (S n)) -> (g : Graph (S n)) -> (v ** ((isInjective n v) = True))
 
--- edges : Graph n -> (List (Nat, Nat),  {prf : isCorrectListOfEdges n edges = True}, prf1 : edgesAllDifferent edges = True)
+-- edges : Graph n -> List (Nat, Nat, prf1, prf2, prf3)
