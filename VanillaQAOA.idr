@@ -14,7 +14,10 @@ import QuantumState
 
 %default total
 
-|||Vanilla QAOA : returns random numbers instead of classical optimisation
+||| Vanilla QAOA : returns random numbers instead of classical optimisation
+
+
+
 
 ---------------CONSTRAINTS ON THE LIST OF EDGES----------------
 public export
