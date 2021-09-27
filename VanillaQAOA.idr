@@ -2,6 +2,7 @@ module VanillaQAOA
 
 import Data.Nat
 import Data.Vect
+import Graph
 import Lemmas
 import Unitary
 import Control.Linear.LIO
@@ -11,6 +12,8 @@ import LinearTypes
 import Complex
 import System.Random
 import QuantumState
+--import Graph
+
 
 %default total
 
@@ -19,83 +22,113 @@ import QuantumState
 
 
 
----------------CONSTRAINTS ON THE LIST OF EDGES----------------
-public export
-edgeDifferent : (Nat, Nat) -> List (Nat, Nat) -> Bool
-edgeDifferent (x,y) [] = True
-edgeDifferent (x,y) ((x1,y1) :: xs) = 
-  (x/=x1 || y/=y1) && (x/=y1 || y/=x1) && edgeDifferent (x,y) xs
-
-public export
-edgesAllDifferent : List (Nat,Nat) -> Bool
-edgesAllDifferent [] = True
-edgesAllDifferent (x :: xs) = edgeDifferent x xs && edgesAllDifferent xs
-
-public export
-isCorrectListOfEdges : (n : Nat) -> List (Nat, Nat) -> Bool
-isCorrectListOfEdges _ [] = True
-isCorrectListOfEdges n ((x,y) :: xs) = 
-  x /= y && x < n && y < n && isCorrectListOfEdges n xs
-
-
 -------------------------QUANTUM CIRCUITS----------------------
 
 mixingHamiltonian : (n : Nat) -> (beta : Double) -> Unitary n
 mixingHamiltonian n beta = tensorn n (RxGate beta)
 
-
-costHamiltonian : (n : Nat) -> (edges : List (Nat, Nat)) -> (gamma : Double) -> 
-                  {auto prf : isCorrectListOfEdges n edges = True} -> 
-                  Unitary n
-costHamiltonian n [] _ = IdGate
-costHamiltonian n ((x, y) :: xs) gamma {prf} = 
-  let p1 = lemmaAndLeft (lemmaAndRight prf)
-      p2 = lemmaAndLeft (lemmaAndRight (lemmaAndRight prf))
-      p3 = lemmaAndLeft prf
-      p4 = lemmaAndRight (lemmaAndRight (lemmaAndRight prf))
-      c = CNOT x y {prf1 = p1} {prf2 = p2} {prf3 = p3} IdGate
-      rz = P gamma y {prf = p2} c
-      h = costHamiltonian n xs gamma {prf = p4}
+costHamiltonian' : {n : Nat} -> {m : Nat} -> {auto prf : n < m = True} -> 
+                   Double -> Vect n Bool -> Unitary m -> Unitary m
+costHamiltonian' _ [] u = u
+costHamiltonian' {n = S k} gamma (False :: xs) u = 
+  let p1 = lemmaLTSuccLT k m 
+  in costHamiltonian' gamma xs u
+costHamiltonian' {n = S k} gamma (True  :: xs) u = 
+  let p1 = lemmaCompLT0 m (S k)
+      p2 = lemmaLTSuccLT k m
+      c = CNOT 0 (S k) (IdGate {n = m})
+      rz = P gamma (S k) c
+      h = costHamiltonian' gamma xs u
   in h @@ c @@ rz
 
-prepareState : (n : Nat) -> 
-               (beta : Double) -> (gamma : Double) -> 
-               (edges : List (Nat, Nat)) ->
-               {auto prf : isCorrectListOfEdges n edges = True} ->
+costHamiltonian : {n : Nat} -> Graph n -> (gamma : Double) -> Unitary n
+costHamiltonian Empty _ = IdGate
+costHamiltonian (AddVertex g xs) gamma = 
+  let circuit = (IdGate {n = 1}) `tensor` (costHamiltonian g gamma)
+      p1 = lemmaLTSucc n
+  in costHamiltonian' gamma xs circuit
+
+
+prepareState : {n : Nat} ->
+               (betas : Vect p Double) -> (gammas : Vect p Double) -> 
+               Graph n ->
                Unitary n
-prepareState n beta gamma edges = 
-  mixingHamiltonian n beta @@ costHamiltonian n edges gamma @@ tensorn n HGate
+prepareState [] [] g = IdGate
+prepareState (beta :: betas) (gamma :: gammas) g = 
+  let circuit = prepareState betas gammas g 
+  in circuit @@ mixingHamiltonian n beta @@ costHamiltonian g gamma
+
 
 
 -------------------------CLASSICAL PART------------------------
 
-pretendClassicalWork : Vect n Bool -> IO (Double, Double)
-pretendClassicalWork v = do
-  a <- randomRIO (0,2 * pi)
-  b <- randomRIO (0,2 * pi)
-  pure (a,b)
+||| generate a vector of random doubles
+randomVect : (n : Nat) -> IO (Vect n Double)
+randomVect 0 = pure []
+randomVect (S k)  = do
+  r <- randomRIO (0,2*pi)
+  v <- randomVect k
+  pure (r :: v)
+
+
+randomBoolVect : (n : Nat) -> IO (Vect n Bool)
+randomBoolVect 0 = pure []
+randomBoolVect (S k) = do
+  r <- randomRIO (0,1)
+  v <- randomBoolVect k
+  if r > 0.5 then pure (True :: v)
+             else pure (False :: v)
+
+|||pretendClassicalWork :
+|||    k : Nat -> number of previous iterations of the algorithm
+|||    Vect n Bool : results from the quantum measurements
+|||    Graph n : the graph of the problem
+|||    Vect k (Vect n Bool, Vect p Double, Vect p Double, Vect n Bool) :
+|||           Vect n Bool : results from previous quantum iterations
+|||           Vect p Double : previous beta vectors
+|||           Vect p Double : previous gamma vectors
+|||           Vect n Bool : cuts obtained by previous iterations
+|||   IO output : Vect (S k) (Vect p Double, Vect p Double, Vect n Bool)
+|||           Same vectors as before, but including all the results from this iteration + best cut until now
+pretendClassicalWork : {p : Nat} -> {n : Nat} -> 
+                       Vect n Bool -> Graph n ->
+                       Vect k (Vect n Bool, Vect p Double, Vect p Double, Vect n Bool) -> 
+                       IO (Vect (S k) (Vect n Bool, Vect p Double, Vect p Double, Vect n Bool))
+pretendClassicalWork xs g ys = do
+  betas <- randomVect p
+  gammas <- randomVect p
+  cuts <- randomBoolVect n
+  pure ((xs,betas,gammas,xs)::ys)
+
 
 -----------------------------QAOA------------------------------
+|||QAOA' :
+|||  k : number of iterations of th algorithm
+|||  p : depth of the circuits
+|||  graph : graph of the problem
+|||  output : result of the classical optimization at each iteration
+QAOA' : QuantumState t =>
+        {n : Nat} ->
+        (k : Nat) -> (p : Nat) -> (graph : Graph n) ->
+        IO (Vect (S k) (Vect n Bool, Vect p Double, Vect p Double, Vect n Bool))
+QAOA' 0 p graph = pretendClassicalWork (replicate n False) graph [] 
+QAOA' (S k) p graph = do
+  res @ ((_, betas, gammas, _) :: _) <- QAOA' {t} k p graph 
+  let circuit = prepareState betas gammas graph
+  xs <- run (do
+            q <- newQubits {t} n
+            q <- applyUnitary q circuit 
+            measureAll q
+            )
+  pretendClassicalWork xs graph res
+
+
 export
 QAOA : QuantumState t =>
-       (nbIter : Nat) -> (n : Nat) -> (edges : List (Nat, Nat)) ->
-       {auto prf : isCorrectListOfEdges n edges = True} ->
-       {auto prf1 : edgesAllDifferent edges = True} ->
+       {n : Nat} ->
+       (k : Nat) -> (p : Nat) -> Graph n ->
        IO (Vect n Bool)
-QAOA 0 n _ = pure (replicate n False)
-QAOA (S k) n edges = do
-  xs <- QAOA {t} k n edges
-  (beta, gamma) <- pretendClassicalWork xs
-  putStrLn ("beta = " ++ (show beta) ++ " , gamma = " ++ (show gamma))
-  let circuit = prepareState n beta gamma edges
-  putStrLn "QAOA circuit : "
-  draw circuit
-  ys <- run (do
-            q <- newQubits {t} n
-            q <- applyUnitary q circuit
-            measureAll q)
-  putStrLn "Results from measurements : "
-  putStrLn (show ys)
-  pure ys
-
+QAOA k p graph = do
+  res <- QAOA' {t} k p graph
+  randomBoolVect n
 

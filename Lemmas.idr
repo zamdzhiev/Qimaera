@@ -111,6 +111,12 @@ lemmaLTSucc 0 = Refl
 lemmaLTSucc (S k) = lemmaLTSucc k
 
 export
+lemmaLTSuccLT : (k : Nat) -> (n : Nat) -> (S k) < n = True -> k < n = True
+lemmaLTSuccLT k 0 prf impossible
+lemmaLTSuccLT 0 (S j) prf = Refl
+lemmaLTSuccLT (S k) (S j) prf = lemmaLTSuccLT k j prf
+
+export
 lemmaLTESuccLT : (k : Nat) -> (n : Nat) -> (S k) <= n = True -> k < n = True
 lemmaLTESuccLT k 0 prf impossible
 lemmaLTESuccLT 0 (S j) prf = Refl
