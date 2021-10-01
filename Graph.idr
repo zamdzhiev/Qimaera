@@ -12,7 +12,22 @@ export
 singletonGraph : Graph 1
 singletonGraph = AddVertex Empty []
 
--- neighbourhood : (vertex : Fin (S n)) -> (g : Graph (S n)) -> (v ** ((isInjective n v) = True))
+public export
+Cut : Nat -> Type
+Cut n = Vect n Bool
 
---edges : Graph n -> List (Nat, Nat, prf1, prf2, prf3)
+||| Compute the size of a cut of a graph
+||| TODO : not actually implemented
+export
+sizeCut : Graph n -> Cut n -> Nat
+sizeCut g c = 0
 
+||| Find the best cut of a graph from a list of cuts
+||| currently not optimal
+export
+bestCut : {n : Nat} -> Graph n -> Vect k (Cut n) -> Cut n
+bestCut graph [] = replicate n True
+bestCut graph (cut::cuts) =
+  let best = bestCut graph cuts
+      size = sizeCut graph cut
+  in  if (sizeCut graph best > size) then best else cut

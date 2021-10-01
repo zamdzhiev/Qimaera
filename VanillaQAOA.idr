@@ -12,57 +12,88 @@ import LinearTypes
 import Complex
 import System.Random
 import QuantumState
---import Graph
-
 
 %default total
 
-||| Vanilla QAOA : returns random numbers instead of classical optimisation
-
-
+||| Vanilla QAOA : we use QAOA with a vanilla optimisation procedure to solve MAXCUT.
 
 
 -------------------------QUANTUM CIRCUITS----------------------
 
-mixingHamiltonian : (n : Nat) -> (beta : Double) -> Unitary n
-mixingHamiltonian n beta = tensorn n (RxGate beta)
+||| The unitary operator induced by the mixing hamiltonian.
+||| n    -- the arity of the operator
+||| beta -- the rotation angle parameter
+mixingUnitary : (n : Nat) -> (beta : Double) -> Unitary n
+mixingUnitary n beta = tensorn n (RxGate beta)
 
-costHamiltonian' : {n : Nat} -> {m : Nat} -> {auto prf : n < m = True} -> 
-                   Double -> Vect n Bool -> Unitary m -> Unitary m
-costHamiltonian' _ [] u = u
-costHamiltonian' {n = S k} gamma (False :: xs) u = 
-  let p1 = lemmaLTSuccLT k m 
-  in costHamiltonian' gamma xs u
-costHamiltonian' {n = S k} gamma (True  :: xs) u = 
-  let p1 = lemmaCompLT0 m (S k)
-      p2 = lemmaLTSuccLT k m
-      c = CNOT 0 (S k) (IdGate {n = m})
-      rz = P gamma (S k) c
-      h = costHamiltonian' gamma xs u
-  in h @@ c @@ rz
+||| Helper function for costUnitary
+||| S n            -- number of vertices of the input subgraph
+||| m              -- arity of the resulting unitary operator
+||| prf            -- proof witness that the number of vertices does not exceed the arity of the operator
+||| gammma         -- the rotation parameter
+||| edges          -- list of edges that the current vertex is connected to
+||| currentUnitary -- the currently constructed unitary operator
+||| output         -- the final unitary operator
+costUnitary' : {n : Nat} -> {m : Nat} -> {auto prf : n < m = True} -> 
+               (gamma : Double) -> (edges : Vect n Bool) -> (currentUnitary : Unitary m) -> Unitary m
+costUnitary' _ [] currentUnitary = currentUnitary
+costUnitary' {n = S k} gamma (False :: xs) currentUnitary =
+  let proof1 = lemmaLTSuccLT k m 
+  in costUnitary' gamma xs currentUnitary
+costUnitary' {n = S k} gamma (True  :: xs) currentUnitary =
+  let proof1 = lemmaCompLT0 m (S k)
+      proof2 = lemmaLTSuccLT k m
+      cx     = CNOT 0 (S k) (IdGate {n = m})
+      rzcx   = P gamma (S k) cx
+      rest   = costUnitary' gamma xs currentUnitary
+  in rest . cx . rzcx
 
-costHamiltonian : {n : Nat} -> Graph n -> (gamma : Double) -> Unitary n
-costHamiltonian Empty _ = IdGate
-costHamiltonian (AddVertex g xs) gamma = 
-  let circuit = (IdGate {n = 1}) `tensor` (costHamiltonian g gamma)
-      p1 = lemmaLTSucc n
-  in costHamiltonian' gamma xs circuit
+||| The unitary operator induced by the cost hamiltonian.
+||| n      -- the number of vertices of the input graph
+||| graph  -- the input graph
+||| gamma  -- rotation parameter
+||| output -- the resulting unitary operator
+costUnitary : {n : Nat} -> (graph: Graph n) -> (gamma : Double) -> Unitary n
+costUnitary Empty _ = IdGate
+costUnitary (AddVertex graph edges) gamma = 
+  let circuit = (IdGate {n = 1}) `tensor` (costUnitary graph gamma)
+      proof1 = lemmaLTSucc n
+  in costUnitary' gamma edges circuit
 
-
-prepareState : {n : Nat} ->
+||| The iterated cost and mixing unitaries for QAOA_p
+||| n       -- the number of vertices of the graph
+||| p       -- the "p" parameter of QAOA_p, i.e., the number of iterations of the mixing and cost unitaries
+||| betas   -- list of rotation parameters for the mixing hamiltonians
+||| gammas  -- list of rotation parameters for the cost hamilitonians
+||| graph   -- the input graph
+||| output  -- the overall unitary operator of QAOA_p
+QAOA_Unitary' : {n : Nat} ->
                (betas : Vect p Double) -> (gammas : Vect p Double) -> 
-               Graph n ->
+               (graph: Graph n) ->
                Unitary n
-prepareState [] [] g = IdGate
-prepareState (beta :: betas) (gamma :: gammas) g = 
-  let circuit = prepareState betas gammas g 
-  in circuit @@ mixingHamiltonian n beta @@ costHamiltonian g gamma
+QAOA_Unitary' [] [] g = IdGate
+QAOA_Unitary' (beta :: betas) (gamma :: gammas) g = 
+  let circuit = QAOA_Unitary' betas gammas g 
+  in circuit . mixingUnitary n beta . costUnitary g gamma
 
+||| The overall unitary operator for QAOA_p
+||| n       -- the number of vertices of the graph
+||| p       -- the "p" parameter of QAOA_p, i.e., the number of iterations of the mixing and cost unitaries
+||| betas   -- list of rotation parameters for the mixing hamiltonians
+||| gammas  -- list of rotation parameters for the cost hamilitonians
+||| graph   -- the input graph
+||| output  -- the overall unitary operator of QAOA_p
+export
+QAOA_Unitary : {n : Nat} ->
+               (betas : Vect p Double) -> (gammas : Vect p Double) -> 
+               (graph: Graph n) ->
+               Unitary n
+QAOA_Unitary betas gammas graph = (QAOA_Unitary' betas gammas graph) . (tensorn n HGate)
 
 
 -------------------------CLASSICAL PART------------------------
 
-||| generate a vector of random doubles
+||| Generate a vector of random doubles
 randomVect : (n : Nat) -> IO (Vect n Double)
 randomVect 0 = pure []
 randomVect (S k)  = do
@@ -71,64 +102,65 @@ randomVect (S k)  = do
   pure (r :: v)
 
 
-randomBoolVect : (n : Nat) -> IO (Vect n Bool)
-randomBoolVect 0 = pure []
-randomBoolVect (S k) = do
-  r <- randomRIO (0,1)
-  v <- randomBoolVect k
-  if r > 0.5 then pure (True :: v)
-             else pure (False :: v)
-
-|||pretendClassicalWork :
-|||    k : Nat -> number of previous iterations of the algorithm
-|||    Vect n Bool : results from the quantum measurements
-|||    Graph n : the graph of the problem
-|||    Vect k (Vect n Bool, Vect p Double, Vect p Double, Vect n Bool) :
-|||           Vect n Bool : results from previous quantum iterations
-|||           Vect p Double : previous beta vectors
-|||           Vect p Double : previous gamma vectors
-|||           Vect n Bool : cuts obtained by previous iterations
-|||   IO output : Vect (S k) (Vect p Double, Vect p Double, Vect n Bool)
-|||           Same vectors as before, but including all the results from this iteration + best cut until now
-pretendClassicalWork : {p : Nat} -> {n : Nat} -> 
-                       Vect n Bool -> Graph n ->
-                       Vect k (Vect n Bool, Vect p Double, Vect p Double, Vect n Bool) -> 
-                       IO (Vect (S k) (Vect n Bool, Vect p Double, Vect p Double, Vect n Bool))
-pretendClassicalWork xs g ys = do
+||| The (probabilistic) classical optimisation procedure for QAOA.
+||| IO output allows us to use probabilistic optimisation procedures.
+||| Given all previously observed information, determine new rotation angles for the next QAOA run (while still remembering the previous info). 
+||| Remark: we randomly generate the next rotation angles for simplicity.
+|||
+||| k             -- number of previous iterations of the algorithm
+||| p             -- "p" parameter for QAOA_p
+||| n             -- number of vertices of the input graph
+||| cut           -- the last observed cut from QAOA run
+||| graph         -- the input graph
+||| previous_info -- previously used parameters and previously observed cuts from QAOA runs
+||| IO output     -- new rotation angles for QAOA + all the previos information.
+classicalOptimisation : {p : Nat} -> {n : Nat} -> 
+                       (cut : Cut n) -> (graph : Graph n) ->
+                       (previous_info : Vect k (Vect p Double, Vect p Double, Cut n)) -> 
+                       IO (Vect (S k) (Vect p Double, Vect p Double, Cut n))
+classicalOptimisation xs g ys = do
   betas <- randomVect p
   gammas <- randomVect p
-  cuts <- randomBoolVect n
-  pure ((xs,betas,gammas,xs)::ys)
+  pure ((betas,gammas,xs)::ys)
 
 
 -----------------------------QAOA------------------------------
-|||QAOA' :
-|||  k : number of iterations of th algorithm
-|||  p : depth of the circuits
-|||  graph : graph of the problem
-|||  output : result of the classical optimization at each iteration
+
+||| Helper function for QAOA
+||| 
+||| n      -- number of vertices of the input graph
+||| p      -- the "p" parameter of QAOA_p
+||| k      -- number of times we sample (the number of times we execute QAOA_p)
+||| graph  -- input graph of the problem
+||| output -- result of the classical optimization after all iterations
 QAOA' : QuantumState t =>
         {n : Nat} ->
         (k : Nat) -> (p : Nat) -> (graph : Graph n) ->
-        IO (Vect (S k) (Vect n Bool, Vect p Double, Vect p Double, Vect n Bool))
-QAOA' 0 p graph = pretendClassicalWork (replicate n False) graph [] 
+        IO (Vect (S k) (Vect p Double, Vect p Double, Cut n))
+QAOA' 0 p graph = classicalOptimisation (replicate n False) graph [] 
 QAOA' (S k) p graph = do
-  res @ ((_, betas, gammas, _) :: _) <- QAOA' {t} k p graph 
-  let circuit = prepareState betas gammas graph
-  xs <- run (do
-            q <- newQubits {t} n
-            q <- applyUnitary q circuit 
-            measureAll q
-            )
-  pretendClassicalWork xs graph res
+  res @ ((betas, gammas, _) :: _) <- QAOA' {t} k p graph 
+  let circuit = QAOA_Unitary betas gammas graph
+  cut <- run (do
+              qs <- newQubits {t} n
+              qs <- applyUnitary qs circuit 
+              measureAll qs
+              )
+  classicalOptimisation cut graph res
 
-
+||| QAOA for the MAXCUT problem. Given an input graph, return the best observed cut after some number of iterations.
+||| 
+||| n      -- number of vertices of the input graph
+||| p      -- the "p" parameter of QAOA_p
+||| k      -- number of times we sample (the number of times we execute QAOA_p)
+||| graph  -- input graph of the problem
+||| output -- best observed cut from the execution of the algorithm
 export
 QAOA : QuantumState t =>
        {n : Nat} ->
        (k : Nat) -> (p : Nat) -> Graph n ->
-       IO (Vect n Bool)
+       IO (Cut n)
 QAOA k p graph = do
   res <- QAOA' {t} k p graph
-  randomBoolVect n
-
+  let cuts = map (\(_, _, cut) => cut) res
+  pure $ bestCut graph cuts

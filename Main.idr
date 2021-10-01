@@ -18,6 +18,7 @@ import Complex
 import QuantumState
 import CoinToss
 import VanillaQAOA
+import Graph
 
 %default total
 testDepth : Unitary 3
@@ -112,7 +113,17 @@ main = do
 --  draw (ansatz 4 2 [[1,2,3,4],[9,10,11,12],[17,18,19,20]] [[5,6,7,8],[13,14,15,16],[21,22,23,24]])
 --  [b1,b2] <- testCH
 --  putStrLn (show (b1,b2))
-  v <- QAOA {t = SimulatedState} 2 4 [(0,1), (1,2), (2,3), (3,0)]
+
+  let k2 = (AddVertex singletonGraph [True])
+  let circuit1 = QAOA_Unitary (replicate 2 0) (replicate 2 0) k2
+  -- draw circuit1
+
+
+  let graph = AddVertex k2 [False, True]
+  let circuit2 = QAOA_Unitary (replicate 2 0) (replicate 2 0) graph
+  draw circuit2
+
+  v <- QAOA {t = SimulatedState} 100 1 graph
   putStrLn ("result from QAOA : " ++ show v)
   pure ()
 
