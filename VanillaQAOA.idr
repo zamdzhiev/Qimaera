@@ -113,7 +113,7 @@ randomVect (S k)  = do
 ||| cut           -- the last observed cut from QAOA run
 ||| graph         -- the input graph
 ||| previous_info -- previously used parameters and previously observed cuts from QAOA runs
-||| IO output     -- new rotation angles for QAOA + all the previos information.
+||| IO output     -- new rotation angles for QAOA + all the previous information.
 classicalOptimisation : {p : Nat} -> {n : Nat} -> 
                        (cut : Cut n) -> (graph : Graph n) ->
                        (previous_info : Vect k (Vect p Double, Vect p Double, Cut n)) -> 

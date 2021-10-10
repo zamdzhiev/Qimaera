@@ -76,6 +76,7 @@ testVQE : IO ()
 testVQE = do
   putStrLn "\nSmall test VQE"
   w <- VQE {t = SimulatedState} 3 (replicate 8 (replicate 8 0)) 2 1
+  putStrLn "Result from VQE : "
   putStrLn (show w)
   putStrLn "\nprinting another ansatz:"
   draw (ansatz 2 2 [[1,2],[9,10],[17,18]] [[5,6],[13,14],[21,22]])
@@ -108,7 +109,7 @@ testQAOA = do
 export
 main : IO ()
 main = do
---  testVQE
+  testVQE
 --  putStrLn (show (depth testDepth))
 --  testCoins
 --  drawTeleportation
@@ -126,18 +127,19 @@ main = do
 --  [b1,b2] <- testCH
 --  putStrLn (show (b1,b2))
 
-  let k2 = (AddVertex singletonGraph [True])
-  let circuit1 = QAOA_Unitary (replicate 2 0) (replicate 2 0) k2
-  -- draw circuit1
+--  let k2 = (AddVertex singletonGraph [True])
+--  let circuit1 = QAOA_Unitary (replicate 2 0) (replicate 2 0) k2
+--   draw circuit1
 
 
-  let graph = AddVertex k2 [False, True]
-  let circuit2 = QAOA_Unitary (replicate 2 0) (replicate 2 0) graph
-  --draw circuit2
+--  let graph = AddVertex k2 [False, True]
+--  let circuit2 = QAOA_Unitary (replicate 2 0) (replicate 2 0) graph
+--  draw circuit2
 
   
 
   v <- testQAOA
   putStrLn ("result from QAOA : " ++ show v)
   pure ()
+
 

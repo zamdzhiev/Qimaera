@@ -18,8 +18,26 @@ import QuantumState
 --Here we did not write the classical part, we only return some random numbers
 
 
+---------------------- HAMILTONIAN -----------------------------
+||| The Hamiltonian type
+|||
+||| Complex matrix of size 2^n * 2^n
+public export
+Hamiltonian : Nat -> Type
+Hamiltonian n = Vect (power 2 n) (Vect (power 2 n) (Complex Double))
+
+||| Type for the matrices of rotation angles
+|||
+||| Matrix of size (n+1) * m
+public export
+RotationAnglesMatrix : Nat -> Nat -> Type
+RotationAnglesMatrix n m = Vect (S n) (Vect m Double)
+
 ----------QUANTUM PART : CIRCUIT------------------
 
+||| Unitary operator used for linear entanglement
+|||
+||| n -- The arity of the operator
 export
 linearEntanglement : (n : Nat) -> Unitary n
 linearEntanglement 0 = IdGate
@@ -28,31 +46,44 @@ linearEntanglement (S (S n)) =
   let circ = IdGate {n = 1} # linearEntanglement (S n)
   in circ @@ (CNOT 0 1 IdGate)
 
-tensorPhases : (n : Nat) -> Vect n Double -> Unitary n
+||| Unitary operator, tensor product of phase gates
+|||
+||| n      -- The arity of the operator
+||| phases -- The vector of phases
+tensorPhases : (n : Nat) -> (phases : Vect n Double) -> Unitary n
 tensorPhases 0 _ = IdGate
-tensorPhases (S k) (x :: xs) = RzGate x # (tensorPhases k xs)
+tensorPhases (S n) (phase :: phases) = RzGate phase # (tensorPhases n phases)
 
-tensorRy : (n : Nat) -> Vect n Double -> Unitary n
+||| Unitary operator, tensor product of Ry gates
+|||
+||| n      -- The arity of the operator
+||| phases -- The vector of phases for the Ry gates
+tensorRy : (n : Nat) -> (phases : Vect n Double) -> Unitary n
 tensorRy 0 _ = IdGate
-tensorRy (S k) (x :: xs) = RyGate x # (tensorRy k xs)
+tensorRy (S k) (phase :: phases) = RyGate phase # (tensorRy k phases)
 
-|||Building the ansatz
-||| parameters : number of qubits, number of repetitions of the pattern, vectors of parameters for the Ry rotations, vector of parameters for the Rz rotations
+||| The overall unitary operator for VQE, the ansatz
+|||
+||| n        -- The arity of the operator
+||| depth    -- The depth of the ansatz, ie the number of repetitions of the pattern
+||| phasesRy -- The vector of phases for all the Ry rotations
+||| phasesRz -- The vector of phases for all the phase gates
+||| output   -- The overall unitary operator for VQE, the ansatz
 export
-ansatz : (nbQubits : Nat) -> (depth : Nat) -> 
-         Vect (S depth) (Vect nbQubits Double) -> 
-         Vect (S depth) (Vect nbQubits Double) ->
-         Unitary nbQubits
+ansatz : (n : Nat) -> (depth : Nat) -> 
+         (phasesRy : RotationAnglesMatrix depth n) -> 
+         (phasesRz : RotationAnglesMatrix depth n) ->
+         Unitary n
 ansatz 0 _ _ _ = IdGate
-ansatz (S n) 0 [v] [w] = tensorPhases (S n) w @@ tensorRy (S n) v
-ansatz (S n) (S r) (v :: vs) (w :: ws) = 
-  let circ1 = ansatz (S n) r vs ws 
-  in circ1 @@ linearEntanglement (S n) @@ tensorPhases (S n) w @@ tensorRy (S n) v
+ansatz (S n) 0 [phaseRy] [phaseRz] = tensorPhases (S n) phaseRz @@ tensorRy (S n) phaseRy
+ansatz (S n) (S d) (phaseRy :: phasesRy) (phaseRz :: phasesRz) = 
+  let circ1 = ansatz (S n) d phasesRy phasesRz 
+  in circ1 @@ linearEntanglement (S n) @@ tensorPhases (S n) phaseRz @@ tensorRy (S n) phaseRy
 
 
 -------------IMAGINARY CLASSICAL OPTIMIZATION PART------------
 
--- generate a vector of random doubles
+||| Generate a vector of random doubles
 randomVect : (n : Nat) -> IO (Vect n Double)
 randomVect 0 = pure []
 randomVect (S k)  = do
@@ -60,45 +91,75 @@ randomVect (S k)  = do
   v <- randomVect k
   pure (r :: v)
 
--- pretend to compute the lowest eigenvalue given the results of the quantum operations
-pretendComputeEnergy : Vect n Bool -> IO Double
-pretendComputeEnergy vs = randomRIO (0,1024)
+||| Generate a matrix of size (n+1) * m of random Double
+randomMatrix : (n : Nat) -> (m : Nat) -> IO (RotationAnglesMatrix n m)
+randomMatrix 0 m = do
+  xs <- randomVect m
+  pure [xs]
+randomMatrix (S n) m = do
+  xs <- randomVect m
+  ys <- randomMatrix n m
+  pure (xs :: ys) 
 
--- pretend to compute the parameters for the quantum circuit by classical optimisation using the results of the measurements
-pretendClassicalWork : (nbQubits : Nat) -> (depth : Nat) ->
-                       (resultAnsatz : Vect nbQubits Bool) -> 
-                       (hamiltonian : Vect (power 2 nbQubits) (Vect (power 2 nbQubits) (Complex Double))) -> 
-                       IO (Vect (S depth) (Vect nbQubits Double), Vect (S depth) (Vect nbQubits Double))
-pretendClassicalWork n 0 v m = do
-  a <- randomVect n
-  b <- randomVect n
-  pure ([a],[b])
-pretendClassicalWork n (S k) v m = do
-  a <- randomVect n
-  b <- randomVect n
-  (c,d) <- pretendClassicalWork n k v m
-  pure (a::c,b::d)
+||| The (probabilistic) classical optimisation procedure for VQE.
+||| IO output allows us to use probabilistic optimisation procedures.
+||| Given all previously observed information, determine new rotation angles for the next VQE run (while still remembering the previous info).
+||| Remark: we randomly generate the next rotation angles for simplicity.
+|||
+||| k             -- number of previous iterations of the algorithm
+||| n             -- arity of the ansatz circuit
+||| depth         -- depth of the ansatz circuit
+||| measurements  -- result of the last measurements
+||| hamiltonian   -- the input Hamiltonian of the problem
+||| previous_info -- previously used parameters and previously computed energies for the hamiltonian
+||| output        -- new rotation angles for VQE and computed energy of the hamiltonian + all the previous information
+classicalOptimisation : {n : Nat} -> (depth : Nat) ->
+                        (measurements : Vect n Bool) ->
+                        (hamiltonian : Hamiltonian n) ->
+                        (previousInfo : Vect k (RotationAnglesMatrix depth n, RotationAnglesMatrix depth n, Double)) ->
+                        IO (Vect (S k) (RotationAnglesMatrix depth n, RotationAnglesMatrix depth n, Double))
+classicalOptimisation depth ms h prevs = do
+  energy <- randomRIO(0,1024)
+  phasesRy <- randomMatrix depth n
+  phasesRz <- randomMatrix depth n
+  pure ((phasesRy, phasesRz, energy)::prevs)
 
 
 -------------------PUTTING QUANTUM AND CLASSICAL PARTS TOGETHER : SIMULATIONS------------------
-
+||| Helper function for VQE
+|||
+||| n           -- The arity of the ansatz
+||| hamiltonian -- The input Hamiltonian of the problem
+||| k           -- Number of times we sample (the number of times we execute VQE)
+||| depth       -- Depth of the ansatz
+||| output      -- result of the classical optimization after all iterations
 VQE' : QuantumState t =>
-       (n : Nat) -> (hamiltonian : Vect (power 2 n) (Vect (power 2 n) (Complex Double))) -> (nbIter : Nat) -> (depth : Nat) ->
-       IO (Vect n Bool)
-VQE' n _ 0 depth = pure (replicate n False)
-VQE' n m (S k) depth = do
-  v <- VQE' {t=t} n m k depth
-  (xs,ys) <- pretendClassicalWork n depth v m
-  run (do
-    let c = ansatz n depth xs ys
-    q <- newQubits {t=t} n
-    q <- applyUnitary q c
-    measureAll q)
-  
+       (n : Nat) -> (hamiltonian : Hamiltonian n) -> (k : Nat) -> (depth : Nat) ->
+       IO (Vect (S k) (RotationAnglesMatrix depth n, RotationAnglesMatrix depth n, Double))
+VQE' n hamiltonian 0 depth = classicalOptimisation depth (replicate n False) hamiltonian []
+VQE' n hamiltonian (S k) depth = do
+  res @ ((phasesRy, phasesRz, _) :: _) <- VQE' {t} n hamiltonian k depth 
+  let circuit = ansatz n depth phasesRy phasesRz
+  meas <- run (do
+               qs <- newQubits {t} n
+               qs <- applyUnitary qs circuit 
+               measureAll qs
+               )
+  classicalOptimisation depth meas hamiltonian res
+
+
+
+||| VQE algorith. Given an input hamiltonian, return the ground state energy of this hamiltonian
+||| 
+||| n           -- The arity of the ansatz
+||| hamiltonian -- the input Hamiltonian of the problem
+||| k           -- number of times we sample (the number of times we execute VQE)
+||| depth       -- Depth of the ansatz
+||| output      -- Ground state energy of the Hamiltonian
 export
 VQE : QuantumState t =>
-      (n : Nat) -> (hamiltonian : Vect (power 2 n) (Vect (power 2 n) (Complex Double))) -> (nbIter : Nat) -> (depth : Nat) ->
+      (n : Nat) -> (hamiltonian : Hamiltonian n) -> (k : Nat) -> (depth : Nat) ->
       IO Double
-VQE n m k d = do
-  res <- VQE' {t=t} n m k d
-  pretendComputeEnergy res
+VQE n hamiltonian k depth = do
+  res @ ((_,_,energy) :: _) <- VQE' {t=t} n hamiltonian k depth
+  pure energy
