@@ -27,18 +27,44 @@ public export
 Cut : Nat -> Type
 Cut n = Vect n Bool
 
+|||Helper function fot sizeCut
+|||
+|||color  -- Color of the current vertex
+|||cut    -- Colors of the other vertices
+|||edges  -- Vect of edges between the current vertex and the others
+|||output -- Number of edges between the current vertex and the other vertices of a different color
+sizeCut' : (color : Bool) -> (cut : Vect n Bool) -> (edges : Vect n Bool) -> Nat
+sizeCut' _ [] [] = 0
+sizeCut' True (False :: cut) (True :: edges) = S (sizeCut' True cut edges)
+sizeCut' False (True :: cut) (True :: edges) = S (sizeCut' False cut edges)
+sizeCut' color (_::cut) (_::edges) = sizeCut' color cut edges
+
 ||| Compute the size of a cut of a graph.
-||| TODO : not actually implemented
+|||
+||| graph  -- The input graph of the problem
+||| cut    -- The given cut
+||| output -- The size of the cut
 export
-sizeCut : Graph n -> Cut n -> Nat
-sizeCut g c = 0
+sizeCut : (graph : Graph n) -> (cut : Cut n) -> Nat
+sizeCut Empty [] = 0
+sizeCut (AddVertex graph edges) cuts = 
+  let x = last cuts
+      cut = init cuts
+  in sizeCut' x cut edges + sizeCut graph cut
+
 
 ||| Find the best cut of a graph from a list of cuts.
-||| currently not optimal
+||| 
+||| n      -- The size of the input graph of the problem
+||| graph  -- The input graph of the problem
+||| cuts   -- Vector of all observed cuts
+||| output -- The best cut and its size
 export
-bestCut : {n : Nat} -> Graph n -> Vect k (Cut n) -> Cut n
-bestCut graph [] = replicate n True
-bestCut graph (cut::cuts) =
-  let best = bestCut graph cuts
-      size = sizeCut graph cut
-  in  if (sizeCut graph best > size) then best else cut
+bestCut : {n : Nat} -> (graph : Graph n) -> (cuts : Vect k (Cut n)) -> (Cut n, Nat)
+bestCut graph [] = (replicate n True, 0)
+bestCut graph (cut::cuts) = 
+  let (best, size) = bestCut graph cuts
+      s = sizeCut graph cut
+  in if s > size then (cut, s) else (best,size)
+
+

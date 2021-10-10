@@ -163,4 +163,5 @@ QAOA : QuantumState t =>
 QAOA k p graph = do
   res <- QAOA' {t} k p graph
   let cuts = map (\(_, _, cut) => cut) res
-  pure $ bestCut graph cuts
+  let (cut,size) = bestCut graph cuts
+  pure cut

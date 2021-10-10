@@ -94,6 +94,18 @@ testTeleport = do
   putStrLn ("Number of True measurements : " ++ show nbT) 
 
 export
+graph1 : Graph 5
+graph1 = AddVertex (AddVertex (AddVertex (AddVertex (AddVertex Empty []) [True]) [True, True]) [False, True, False]) [False, False, True, True]
+
+
+export
+testQAOA : IO (Cut 5)
+testQAOA = do
+  --let circuit = QAOA_Unitary (replicate 2 0) (replicate 2 0) graph1
+ -- draw circuit
+  QAOA {t = SimulatedState} 100 1 graph1
+
+export
 main : IO ()
 main = do
 --  testVQE
@@ -121,9 +133,11 @@ main = do
 
   let graph = AddVertex k2 [False, True]
   let circuit2 = QAOA_Unitary (replicate 2 0) (replicate 2 0) graph
-  draw circuit2
+  --draw circuit2
 
-  v <- QAOA {t = SimulatedState} 100 1 graph
+  
+
+  v <- testQAOA
   putStrLn ("result from QAOA : " ++ show v)
   pure ()
 
