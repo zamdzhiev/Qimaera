@@ -12,6 +12,7 @@ import LinearTypes
 import Complex
 import System.Random
 import QuantumState
+import RandomUtilities
 
 %default total
 
@@ -27,11 +28,11 @@ mixingUnitary : (n : Nat) -> (beta : Double) -> Unitary n
 mixingUnitary n beta = tensorn n (RxGate beta)
 
 ||| Helper function for costUnitary
-||| S n            -- number of vertices of the input subgraph
-||| m              -- arity of the resulting unitary operator
+||| m              -- number of vertices of the input subgraph
+||| n              -- number of remaining edges between current vertex and the rest
 ||| prf            -- proof witness that the number of vertices does not exceed the arity of the operator
-||| gammma         -- the rotation parameter
-||| edges          -- list of edges that the current vertex is connected to
+||| gamma          -- the rotation parameter
+||| edges          -- vector of edges that the current vertex is connected to
 ||| currentUnitary -- the currently constructed unitary operator
 ||| output         -- the final unitary operator
 costUnitary' : {n : Nat} -> {m : Nat} -> {auto prf : n < m = True} -> 
@@ -93,35 +94,25 @@ QAOA_Unitary betas gammas graph = (QAOA_Unitary' betas gammas graph) . (tensorn 
 
 -------------------------CLASSICAL PART------------------------
 
-||| Generate a vector of random doubles
-randomVect : (n : Nat) -> IO (Vect n Double)
-randomVect 0 = pure []
-randomVect (S k)  = do
-  r <- randomRIO (0,2*pi)
-  v <- randomVect k
-  pure (r :: v)
-
-
 ||| The (probabilistic) classical optimisation procedure for QAOA.
 ||| IO output allows us to use probabilistic optimisation procedures.
-||| Given all previously observed information, determine new rotation angles for the next QAOA run (while still remembering the previous info). 
+||| Given all previously observed information, determine new rotation angles for the next QAOA run. 
 ||| Remark: we randomly generate the next rotation angles for simplicity.
 |||
 ||| k             -- number of previous iterations of the algorithm
 ||| p             -- "p" parameter for QAOA_p
 ||| n             -- number of vertices of the input graph
-||| cut           -- the last observed cut from QAOA run
 ||| graph         -- the input graph
 ||| previous_info -- previously used parameters and previously observed cuts from QAOA runs
-||| IO output     -- new rotation angles for QAOA + all the previous information.
-classicalOptimisation : {p : Nat} -> {n : Nat} -> 
-                       (cut : Cut n) -> (graph : Graph n) ->
+||| IO output     -- new rotation angles for the next run of QAOA
+classicalOptimisation : {p : Nat} ->
+                       (graph : Graph n) ->
                        (previous_info : Vect k (Vect p Double, Vect p Double, Cut n)) -> 
-                       IO (Vect (S k) (Vect p Double, Vect p Double, Cut n))
-classicalOptimisation xs g ys = do
+                       IO (Vect p Double, Vect p Double)
+classicalOptimisation g ys = do
   betas <- randomVect p
   gammas <- randomVect p
-  pure ((betas,gammas,xs)::ys)
+  pure (betas,gammas)
 
 
 -----------------------------QAOA------------------------------
@@ -132,21 +123,22 @@ classicalOptimisation xs g ys = do
 ||| p      -- the "p" parameter of QAOA_p
 ||| k      -- number of times we sample (the number of times we execute QAOA_p)
 ||| graph  -- input graph of the problem
-||| output -- result of the classical optimization after all iterations
+||| output -- all observed cuts and all rotation angles from all the runs of QAOA
 QAOA' : QuantumState t =>
         {n : Nat} ->
         (k : Nat) -> (p : Nat) -> (graph : Graph n) ->
-        IO (Vect (S k) (Vect p Double, Vect p Double, Cut n))
-QAOA' 0 p graph = classicalOptimisation (replicate n False) graph [] 
+        IO (Vect k (Vect p Double, Vect p Double, Cut n))
+QAOA' 0 p graph = pure []
 QAOA' (S k) p graph = do
-  res @ ((betas, gammas, _) :: _) <- QAOA' {t} k p graph 
+  previous_info <- QAOA' {t} k p graph 
+  (betas, gammas) <- classicalOptimisation graph previous_info
   let circuit = QAOA_Unitary betas gammas graph
   cut <- run (do
               qs <- newQubits {t} n
               qs <- applyUnitary qs circuit 
               measureAll qs
               )
-  classicalOptimisation cut graph res
+  pure $ (betas, gammas, cut) :: previous_info
 
 ||| QAOA for the MAXCUT problem. Given an input graph, return the best observed cut after some number of iterations.
 ||| 

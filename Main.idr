@@ -20,6 +20,8 @@ import CoinToss
 import VanillaQAOA
 import Graph
 
+||| TODO: FIX
+
 %default total
 testDepth : Unitary 3
 testDepth = 
@@ -109,7 +111,7 @@ testQAOA = do
 export
 main : IO ()
 main = do
-  testVQE
+--  testVQE
 --  putStrLn (show (depth testDepth))
 --  testCoins
 --  drawTeleportation

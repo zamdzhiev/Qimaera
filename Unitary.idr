@@ -229,8 +229,21 @@ bigControlledCNOT 1 = IdGate
 bigControlledCNOT 2 = CNOT 0 1 IdGate
 bigControlledCNOT (S k) = controlled (bigControlledCNOT k)
 
+||| Tensor product of a Vector of single-qubit Unitary operators
+export
+tensorMap : {n : Nat} -> {m : Nat} -> (gates : Vect n (Unitary m)) -> Unitary (n*m)
+tensorMap [] = IdGate
+tensorMap (gate :: gates) = gate # (tensorMap gates)
+
+||| Tensor product of a Vector of single-qubit Unitary operators
+||| TODO: theorem proving using above function
+export
+tensorMapSimple : {n : Nat} -> (gates : Vect n (Unitary 1)) -> Unitary n
+tensorMapSimple [] = IdGate
+tensorMapSimple (gate :: gates) = gate # (tensorMapSimple gates)
+
 ---------------------------------------------------------------
---count the total number of atomic gates in a unitary circuit
+-- count the total number of atomic gates in a unitary circuit
 export
 gateCount : Unitary n -> Nat
 gateCount IdGate = 0
