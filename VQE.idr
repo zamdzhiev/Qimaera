@@ -146,4 +146,4 @@ VQE n cost_function k depth = do
   observed_info <- VQE' {t=t} n cost_function (S k) depth
   let measurement_outcomes = map (\(_, _, measurement) => measurement) observed_info
   let costs = map cost_function measurement_outcomes
-  pure $ foldr min (head costs) costs
+  pure $ foldl min (head costs) costs
