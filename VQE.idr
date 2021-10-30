@@ -4,6 +4,7 @@ import Data.Nat
 import Data.Vect
 import Unitary
 import Control.Linear.LIO
+import Lemmas
 import QStateT
 import Injection
 import LinearTypes
@@ -76,7 +77,7 @@ ansatz n (S d) (phaseRy :: phasesRy) (phaseRz :: phasesRz) =
 
 -------------CLASSICAL OPTIMIZATION PART------------
 
-
+public export
 data PauliAtomic : Type where
   PauliI : PauliAtomic
   PauliX : PauliAtomic
@@ -84,19 +85,31 @@ data PauliAtomic : Type where
   PauliZ : PauliAtomic
 
 ||| n -- number of qubits
+public export
 PauliBasis : Nat -> Type
 PauliBasis n = Vect n PauliAtomic
 
 ||| H = a_1P_1 + a_2P_2 + ... + a_kP_k
+public export
 Hamiltonian : Nat -> Type
 Hamiltonian n = List (Double, PauliBasis n)
 
+export
+lemmakLTSk : (k : Nat) -> (S k) < S (k + 1) = True
+lemmakLTSk k = rewrite lemmaplusOneRight k in lemmaLTSucc k
+
 encodingUnitary : {n : Nat} -> PauliBasis n -> Unitary (S n)
 encodingUnitary [] = IdGate
-encodingUnitary (PauliI :: xs) = ?qweasd --(encodingUnitary xs) `tensor` IdGate {n=1}
-encodingUnitary (PauliX :: xs) = ?qewasddqweqwe -- CNOT n 0 (H n ((encodingUnitary xs) `tensor` IdGate {n=1}))
-encodingUnitary (PauliY :: xs) = ?qweasdwe_3
-encodingUnitary (PauliZ :: xs) = ?qweasdwe_4
+encodingUnitary {n = S k} (PauliI :: xs) = rewrite sym $ lemmaplusOneRight k in (encodingUnitary xs) `tensor` IdGate {n=1}
+encodingUnitary {n = S k} (PauliX :: xs) = 
+  let p1 = lemmakLTSk k
+  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 (H (S k) ((encodingUnitary xs) `tensor` IdGate {n=1}))
+encodingUnitary {n = S k} (PauliY :: xs) =
+  let p1 = lemmakLTSk k 
+  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 (H (S k) (S (S k) ((encodingUnitary xs) `tensor` IdGate {n=1})))
+encodingUnitary {n = S k} (PauliZ :: xs) = 
+  let p1 = lemmakLTSk k
+  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 ((encodingUnitary xs) `tensor` IdGate {n=1})
 
 ||| Generate a matrix of size (n+1) * m of random Double
 export
@@ -131,7 +144,7 @@ classicalOptimisation depth h previos_info = do
 
 
 
--------------------PUTTING QUANTUM AND CLASSICAL PARTS TOGETHER : SIMULATIONS------------------
+-----------------------PUTTING QUANTUM AND CLASSICAL PARTS TOGETHER -------------------------
 
 computeEnergyPauli : QuantumState t => (n : Nat) -> (p : PauliBasis n) -> (nSamples : Nat) -> (circuit : Unitary n) -> IO Double
 computeEnergyPauli n p 0 circuit = pure 0
@@ -176,47 +189,4 @@ VQE n h nSamples k depth = do
 
 
 
--------------------PUTTING QUANTUM AND CLASSICAL PARTS TOGETHER : SIMULATIONS------------------
-{-
-||| Helper function for VQE
-|||
-||| n             -- the arity of the ansatz
-||| cost_function -- function that computes the cost of inputs
-||| k             -- number of times we sample (the number of times we execute VQE)
-||| depth         -- depth of the ansatz
-||| output        -- all of the observed information from all the runs of VQE
-VQE' : QuantumState t =>
-       (n : Nat) -> (cost_function : Vect n Bool -> Double) -> (k : Nat) -> (depth : Nat) ->
-       IO (Vect k (RotationAnglesMatrix depth n, RotationAnglesMatrix depth n, Vect n Bool))
-VQE' n cost_function 0 depth = pure []
-VQE' n cost_function (S k) depth = do
-  previous_info <- VQE' {t} n cost_function k depth 
-  (phasesRy, phasesRz) <- classicalOptimisation depth cost_function previous_info
-  let circuit = ansatz n depth phasesRy phasesRz
-  meas <- run (do
-               qs <- newQubits {t} n
-               qs <- applyUnitary qs circuit 
-               measureAll qs
-               )
-  pure $ (phasesRy, phasesRz, meas) :: previous_info
 
-
-
-||| VQE algorithm. Given an input cost function, return the best output
-||| 
-||| n             -- The arity of the ansatz
-||| cost_function -- function that computes the cost of inputs
-||| k+1           -- number of times we sample (the number of times we execute VQE)
-||| depth         -- Depth of the ansatz
-||| output        -- Ground state energy of the Hamiltonian
-
-export
-VQE : QuantumState t =>
-      (n : Nat) -> (cost_function : Vect n Bool -> Double) -> (k : Nat) -> (depth : Nat) ->
-      IO Double
-VQE n cost_function k depth = do
-  observed_info <- VQE' {t=t} n cost_function (S k) depth
-  let measurement_outcomes = map (\(_, _, measurement) => measurement) observed_info
-  let costs = map cost_function measurement_outcomes
-  pure $ foldl min (head costs) costs
--}

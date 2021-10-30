@@ -20,7 +20,6 @@ import CoinToss
 import VanillaQAOA
 import Graph
 
-||| TODO: FIX
 
 %default total
 testDepth : Unitary 3
@@ -74,14 +73,11 @@ testCoins = do
 
 
 export
-testVQE : IO ()
+testVQE : IO Double
 testVQE = do
-  putStrLn "\nSmall test VQE"
-  w <- VQE {t = SimulatedState} 3 (replicate 8 (replicate 8 0)) 2 1
-  putStrLn "Result from VQE : "
-  putStrLn (show w)
-  putStrLn "\nprinting another ansatz:"
-  draw (ansatz 2 2 [[1,2],[9,10],[17,18]] [[5,6],[13,14],[21,22]])
+  putStrLn "Test VQE"
+  let hamiltonian = [(2, [PauliX, PauliY]),(3,[PauliZ, PauliI])]
+  VQE {t = SimulatedState} 2 hamiltonian 5 10 5
 
 ||| Call the drawTeleportation function (using the SimulatedState implementation)
 ||| then execute the runTeleportation function 1000 times and report on the

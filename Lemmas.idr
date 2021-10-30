@@ -129,6 +129,10 @@ lemmaLTESuccLTE k 0 prf impossible
 lemmaLTESuccLTE 0 (S j) prf = Refl
 lemmaLTESuccLTE (S k) (S j) prf = lemmaLTESuccLTE k j prf
 
+export 
+lemmaSuccsLT : (k : Nat) -> (n : Nat) -> (S k) < (S n) = True -> k < n = True
+lemmaSuccsLT k n prf = prf
+
 export
 lemmaCompLT0 : (n : Nat) -> (j : Nat) -> {auto prf : j < n = True} -> 0 < n = True
 lemmaCompLT0 n 0 {prf} = prf

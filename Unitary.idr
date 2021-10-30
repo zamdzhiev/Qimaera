@@ -239,8 +239,7 @@ tensorMap (gate :: gates) = gate # (tensorMap gates)
 ||| TODO: theorem proving using above function
 export
 tensorMapSimple : {n : Nat} -> (gates : Vect n (Unitary 1)) -> Unitary n
-tensorMapSimple [] = IdGate
-tensorMapSimple (gate :: gates) = gate # (tensorMapSimple gates)
+tensorMapSimple g = rewrite sym $ multOneRightNeutral n in tensorMap g
 
 ---------------------------------------------------------------
 -- count the total number of atomic gates in a unitary circuit
