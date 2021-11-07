@@ -33,7 +33,7 @@ amplification 1 = IdGate
 amplification (S k) = 
   let x = tensorn (S k) (X 0 IdGate)
       h1 = H k {prf = lemmaLTSucc k} x
-      c = bigControlledCNOT (S k) @@ h1
+      c = multipleQubitControlledNOT (S k) @@ h1
       h2 = H k {prf = lemmaLTSucc k} c
   in x @@ h2 
 

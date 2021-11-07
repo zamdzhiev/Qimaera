@@ -9,6 +9,7 @@ import QStateT
 import Injection
 import LinearTypes
 import QuantumState
+import Examples
 
 %default total
 

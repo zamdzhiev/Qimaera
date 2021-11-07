@@ -19,7 +19,7 @@ import QuantumState
 import CoinToss
 import VanillaQAOA
 import Graph
-
+import Examples
 
 %default total
 testDepth : Unitary 3
@@ -136,8 +136,10 @@ main = do
 
   
 
-  v <- testQAOA
-  putStrLn ("result from QAOA : " ++ show v)
+--  v <- testQAOA
+--  putStrLn ("result from QAOA : " ++ show v)
+
+  drawExamples
   pure ()
 
 

@@ -165,10 +165,6 @@ public export
 RzGate : Double -> Unitary 1
 RzGate p = PGate p 
 
-||| Put two qubits initally in state |00> in the Bell state
-public export
-toBellBasis : Unitary 2
-toBellBasis = CNOT 0 1 (H 0 IdGate)
 
 ---------------------CONTROLLED VERSIONS-----------------------
 |||Toffoli gate
@@ -223,20 +219,19 @@ tensorn (S k) g = g # (tensorn k g)
 
 |||Controls on the n-1 first qubits, target on the last
 public export
-bigControlledCNOT : (n : Nat) -> Unitary n
-bigControlledCNOT 0 = IdGate
-bigControlledCNOT 1 = IdGate
-bigControlledCNOT 2 = CNOT 0 1 IdGate
-bigControlledCNOT (S k) = controlled (bigControlledCNOT k)
+multipleQubitControlledNOT : (n : Nat) -> Unitary n
+multipleQubitControlledNOT 0 = IdGate
+multipleQubitControlledNOT 1 = IdGate
+multipleQubitControlledNOT 2 = CNOT 0 1 IdGate
+multipleQubitControlledNOT (S k) = controlled (multipleQubitControlledNOT k)
 
-||| Tensor product of a Vector of single-qubit Unitary operators
+||| Tensor product of a Vector of Unitary operators
 export
 tensorMap : {n : Nat} -> {m : Nat} -> (gates : Vect n (Unitary m)) -> Unitary (n*m)
 tensorMap [] = IdGate
 tensorMap (gate :: gates) = gate # (tensorMap gates)
 
 ||| Tensor product of a Vector of single-qubit Unitary operators
-||| TODO: theorem proving using above function
 export
 tensorMapSimple : {n : Nat} -> (gates : Vect n (Unitary 1)) -> Unitary n
 tensorMapSimple g = rewrite sym $ multOneRightNeutral n in tensorMap g
@@ -286,12 +281,6 @@ findValue : (j : Nat) -> Vect n Nat -> {auto prf : j < n = True} -> Nat
 findValue 0 (x::xs) = x
 findValue (S k) (x::xs) = findValue k xs
 
-max : Vect n Nat -> Nat
-max v = max' 0 v where
-  max' : Nat -> Vect k Nat -> Nat
-  max' k [] = k
-  max' k (x::xs) = if x > k then max' x xs else max' k xs
-
 depth' : {n : Nat} -> Unitary n -> Vect n Nat
 depth' IdGate = replicate n 0
 depth' (H j x) =
@@ -317,7 +306,7 @@ export
 depth : {n : Nat} -> Unitary n -> Nat
 depth g = 
   let v = depth' g 
-  in max v
+  in foldl max 0 v
 
 ----------------------------SHOW-------------------------------
 |||For printing the phase gate (used for show, export to Qiskit and draw in the terminal)
