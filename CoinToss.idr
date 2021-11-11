@@ -3,6 +3,7 @@ module CoinToss
 import Data.Vect
 import QStateT
 import QuantumState
+import LinearTypes
 
 ||| A quantum state transformer which realises a fair coin toss in the obvious way:
 ||| first create a new qubit in state |0>
@@ -12,8 +13,8 @@ coinT : QuantumState t => QStateT (t 0) (t 0) (Vect 1 Bool)
 coinT = do
   q <- newQubit
   q <- applyH q
-  b <- measureQubit q
-  pure (if b then [True] else [False])
+  r <- measure [q]
+  pure r
 
 ||| A fair coin toss (as an IO effect) via quantum resources.
 export
