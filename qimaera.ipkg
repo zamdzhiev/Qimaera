@@ -10,4 +10,4 @@ homepage = "https://github.com/zamdzhiev/Qimaera"
 sourceloc = "https://github.com/zamdzhiev/Qimaera"
 bugtracker = "https://github.com/zamdzhiev/Qimaera/issues"
 
-modules = Unitary, QStateT, QuantumState, VQE, Grover, CoinToss, QFT, Teleportation, OptimiseUnitary, OperationExamples, Graph, VanillaQAOA, RandomUtilities, Examples
+modules = Unitary, QStateT, QuantumState, VQE, Grover, CoinToss, QFT, Teleportation, OptimiseUnitary, OperationExamples, Graph, VanillaQAOA, RandomUtilities, Examples, RUS

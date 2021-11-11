@@ -20,8 +20,9 @@ import CoinToss
 import VanillaQAOA
 import Graph
 import Examples
+import RUS
 
-%default total
+-- %default total
 testDepth : Unitary 3
 testDepth = 
 --  CNOT 0 1 (CNOT 2 1 (H 1 (CNOT 0 2 IdGate)))
@@ -125,6 +126,9 @@ main = do
 --  [b1,b2] <- testCH
 --  putStrLn (show (b1,b2))
 
+--  testMultipleRUS 10000
+--  pure ()
+
 --  let k2 = (AddVertex singletonGraph [True])
 --  let circuit1 = QAOA_Unitary (replicate 2 0) (replicate 2 0) k2
 --   draw circuit1
@@ -140,6 +144,5 @@ main = do
 --  putStrLn ("result from QAOA : " ++ show v)
 
   drawExamples
-  pure ()
 
 
