@@ -256,10 +256,6 @@ quantum_operation4 =
       [b1,b3] <- measure [q1,q3]
       pure [b1,b2,b3]
       )
-      
---TODO parametrized circuit
-
---execution with run (créer 2 nouveaux qubit, to bell basis, ajouter un qubit, toffoli, mesurer un qubit, autre circuit, mesurer 2 qubits
 
 ------------------------------------ Draw all example circuits ------------------------------------
 
