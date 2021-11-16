@@ -9,7 +9,7 @@ Idris libraries for type safe (variational) quantum programming
 
 These libraries have been tested under Idris2 0.4.0 and 0.5.1.
 
-The latest version of Idris can be found [here](https://www.idris-lang.org/pages/download.html), and all the instructions for installing it can be found [here](https://idris2.readthedocs.io/en/latest/tutorial/starting.html)
+The latest version of Idris can be found [here](https://www.idris-lang.org/pages/download.html), and all the instructions for installing it can be found [here](https://idris2.readthedocs.io/en/latest/tutorial/starting.html).
 
 
 ## <a id="compiling"></a> Compiling Qimaera library
@@ -37,11 +37,11 @@ As all quantum circuits can be represented as a composition or tensor product of
 
 Higher level functions to build more complicated circuits are also defined in this file :
 
- * `compose`    : makes the sequential composition of unitary gates
- * `tensor`     : makes the parallel composition (ie the tensor product) of unitary gates
- * `apply`      : apply some unitary gate to another unitary gate
- * `adjoint`    : computes the adjoint of a unitary operator
- * `controlled` : make the controlled version of unitary gate
+ * `compose`    : Makes the sequential composition of unitary gates.
+ * `tensor`     : Makes the parallel composition (ie the tensor product) of unitary gates.
+ * `apply`      : Apply some unitary gate to another unitary gate.
+ * `adjoint`    : Computes the adjoint of a unitary operator.
+ * `controlled` : Make the controlled version of unitary gate.
 
 Some examples using these functions can be found in the `Examples.idr` file.
 
@@ -49,8 +49,8 @@ The most common gates (HGate, PGate, CNOTGate, TGate, SGate, ZGate, XGate, RxGat
 
 Visualize circuits : 
 
- * `draw`           : Draw a circuit in the terminal
- * `exportToQiskit` : Export a circuit to Qiskit code for a graphical rendering
+ * `draw`           : Draw a circuit in the terminal.
+ * `exportToQiskit` : Export a circuit to Qiskit code for a graphical rendering.
 
 This file also provides some function to compute the number of gates and the depth of a circuit.
 
@@ -125,9 +125,9 @@ This example illustrates the difference between computing unitary operators and 
 
 Given an input qubit |q> and a single-qubit unitary operation U, return the state U|q>. The "Repeat Until Success" approach solves this problem in the following way:
 
- 1. Prepare a new qubit in state |0>
- 2. Apply some two-qubit unitary operation U' (depends on U)
- 3. Measure the auxiliary qubit
+ 1. Prepare a new qubit in state |0>.
+ 2. Apply some two-qubit unitary operation U' (depends on U).
+ 3. Measure the auxiliary qubit.
  4. With (high) probability the result is now U|q> and then stop.
  5. With (low) probability the result is state E|q>, where E is some other unitary operator (depending on U), so we uncompute the error by applying E^dagger and we go back to step 1.
 
