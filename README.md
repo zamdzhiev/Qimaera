@@ -1,18 +1,18 @@
 # Qimaera
 Idris libraries for type safe (variational) quantum programming
 
-    * [Installing Idris2](#installing-idris2)
-    * [Compiling Qimaera library](#compiling-qimaera-library)
-    * [Library overview](#library-overview)
+    * [Installing Idris2](#installing)
+    * [Compiling Qimaera library](#compiling)
+    * [Library overview](#overview)
 
-## Installing Idris2
+## <a id="installing"></a> Installing Idris2
 
 These libraries have been tested under Idris2 0.4.0 and 0.5.1.
 
 The latest version of Idris can be found [here](https://www.idris-lang.org/pages/download.html), and all the instructions for installing it can be found [here](https://idris2.readthedocs.io/en/latest/tutorial/starting.html)
 
 
-## Compiling Qimaera library
+## <a id="compiling"></a> Compiling Qimaera library
 
 Type `make package` to build the whole package.
 
@@ -20,7 +20,7 @@ Type `make` to compile the library.
 
 
 
-## Library overview
+## <a id="overview"></a> Library overview
 
   * **`Unitary.idr`**
 
@@ -28,8 +28,8 @@ Build quantum circuits.
 
 We first define the `Unitary` data type, which represents the unitary gates. They are only defined as circuits, in terms of gates and wires, and are nor applied to any qubit yet.
 The `Unitary` data type is parametrized by the number of wires in the circuit. It has 4 constructors : 
- * `IdGate` : parametrized by a natural number $n$, it represents a circuit with $n$ wires, without any other gate applied to any of the wires.
- * `H`      : Hadamard gate, takes as argument the index of the wire on which it should be applied (for a circuit of size $n$, the indices go from 0 to $n-1$). The second argument, which is implicit (and can be often inferred by the compiler), is a proof obligation that this index is smaller than the size of the circuit.
+ * `IdGate` : parametrized by a natural number n, it represents a circuit with n wires, without any other gate applied to any of the wires.
+ * `H`      : Hadamard gate, takes as argument the index of the wire on which it should be applied (for a circuit of size n, the indices go from 0 to n-1). The second argument, which is implicit (and can be often inferred by the compiler), is a proof obligation that this index is smaller than the size of the circuit.
  * `P`      : Phase gate, its first argument (a Double) being the associated phase. The other arguments serve the same purpose as H.
  * `CNOT`   : Controlled-NOT gate to the control (c argument) and the target (t argument) wires. Here, we add the constraint that the two wires have to be distinct.
 As all quantum circuits can be represented as a composition or tensor product of Hadamard, Phase and CNOT gates, we only need these three constructors to build any gate.
@@ -71,7 +71,7 @@ Defines the `Qubit` type, the `QuantumState` interface for quantum operations an
 The Qubit type is used to identify individual qubits. This type does not carry any quantum state information.
 
 The QuantumState interface is an abstraction over the representation of a quantum state. It is parameterised by the number of qubits it contains. It introduces a few operations on qubits:
- * newQubits    : Adds $p$ new qubits to a quantum state.
+ * newQubits    : Adds p new qubits to a quantum state.
  * applyUnitary : Apply a unitary gate to a set of qubits. The parameters are the linear vector of qubit identifiers for the set of qubits and the unitary operator.
  * measure      : Measure a set of qubits. The parameters is the linear vectors of identifiers for the qubits we wish to measure.
  * run          : Run a sequence of quantum operations, starting with no qubits and measuring all the qubits at the end.
