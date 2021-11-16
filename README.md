@@ -1,9 +1,9 @@
 # Qimaera
 Idris libraries for type safe (variational) quantum programming
-
-    * [Installing Idris2](#installing)
-    * [Compiling Qimaera library](#compiling)
-    * [Library overview](#overview)
+    
+ * [Installing Idris2](#installing)
+ * [Compiling Qimaera library](#compiling)
+ * [Library overview](#overview)
 
 ## <a id="installing"></a> Installing Idris2
 
