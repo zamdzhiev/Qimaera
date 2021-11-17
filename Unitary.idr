@@ -6,7 +6,7 @@ import System.File
 import Injection
 import Lemmas
 
-infixr 9 @@
+infixr 9 .
 infixr 10 #
 
 %default total
@@ -57,10 +57,6 @@ compose IdGate g1 = g1
 compose (H j g1) g2 = H j (compose g1 g2)
 compose (P p j g1) g2 = P p j (compose g1 g2)
 compose (CNOT c t g1) g2 = CNOT c t (compose g1 g2)
-
-public export
-(@@) : Unitary n -> Unitary n -> Unitary n
-(@@) = compose
 
 public export
 (.) : Unitary n -> Unitary n -> Unitary n
@@ -155,11 +151,11 @@ XGate = X 0 IdGate
 
 public export
 RxGate : Double -> Unitary 1
-RxGate p = HGate @@ PGate p @@ HGate
+RxGate p = HGate . PGate p . HGate
 
 public export
 RyGate : Double -> Unitary 1
-RyGate p = SAdjGate @@ HGate @@ PGate (-p) @@ HGate @@ SGate
+RyGate p = SAdjGate . HGate . PGate (-p) . HGate . SGate
 
 public export
 RzGate : Double -> Unitary 1
@@ -182,9 +178,9 @@ toffoli =
 public export
 controlledH : Unitary 2
 controlledH =
-  let h1 = (IdGate {n=1}) # (SAdjGate @@ HGate @@ TGate @@ HGate @@ SGate)
-      h2 = (IdGate {n=1}) # (SAdjGate @@ HGate @@ TAdjGate @@ HGate @@ SGate)
-  in h1 @@ CNOTGate @@ h2
+  let h1 = (IdGate {n=1}) # (SAdjGate . HGate . TGate . HGate . SGate)
+      h2 = (IdGate {n=1}) # (SAdjGate . HGate . TAdjGate . HGate . SGate)
+  in h1 . CNOTGate . h2
 
 |||Controlled phase gate
 public export
