@@ -111,6 +111,10 @@ lemmaLTSucc 0 = Refl
 lemmaLTSucc (S k) = lemmaLTSucc k
 
 export
+lemmakLTSk : (k : Nat) -> (S k) < S (k + 1) = True
+lemmakLTSk k = rewrite lemmaplusOneRight k in lemmaLTSucc k
+
+export
 lemmaLTSuccLT : (k : Nat) -> (n : Nat) -> (S k) < n = True -> k < n = True
 lemmaLTSuccLT k 0 prf impossible
 lemmaLTSuccLT 0 (S j) prf = Refl

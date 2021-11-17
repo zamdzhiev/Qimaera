@@ -16,10 +16,8 @@ import RandomUtilities
 %default total
 
 -- Example of code where quantum and classical information interact
--- VQE : find an upper bound for the lowest eigenvalue of a Hamiltonian operator
+-- VQE : find an upper bound for the lowest eigenvalue of a Hamiltonian operator that is a sum of tensor products of Pauli matrices
 -- Here we did not write the classical part, we only return some random numbers
-
--- TODO : DOCUMENTATION + CODE
 
 
 ||| Type for the matrices of rotation angles
@@ -75,8 +73,12 @@ ansatz n (S d) (phaseRy :: phasesRy) (phaseRz :: phasesRz) =
   in circ1 . linearEntanglement n . tensorRzs phaseRz . tensorRys phaseRy
 
 
--------------CLASSICAL OPTIMIZATION PART------------
+------------- DECOMPOSITION OF THE HAMILTONIAN AS A SUM OF PAULI MATRICES ------------
 
+--The Hamiltonian is a sum of tensor products of Pauli matrices
+
+
+||| Data type for the the Pauli matrices X,Y,Z and Identity
 public export
 data PauliAtomic : Type where
   PauliI : PauliAtomic
@@ -84,32 +86,26 @@ data PauliAtomic : Type where
   PauliY : PauliAtomic
   PauliZ : PauliAtomic
 
+
+
+||| Tensor product of n Pauli matrices represented as a vector
 ||| n -- number of qubits
 public export
 PauliBasis : Nat -> Type
 PauliBasis n = Vect n PauliAtomic
 
-||| H = a_1P_1 + a_2P_2 + ... + a_kP_k
+
+
+||| Decomposition of Hamiltonian as sum of Pauli matrices
+||| Hamiltonian = a_1P_1 + a_2P_2 + ... + a_kP_k
+||| n -- number of qubits
 public export
 Hamiltonian : Nat -> Type
 Hamiltonian n = List (Double, PauliBasis n)
 
-export
-lemmakLTSk : (k : Nat) -> (S k) < S (k + 1) = True
-lemmakLTSk k = rewrite lemmaplusOneRight k in lemmaLTSucc k
 
-encodingUnitary : {n : Nat} -> PauliBasis n -> Unitary (S n)
-encodingUnitary [] = IdGate
-encodingUnitary {n = S k} (PauliI :: xs) = rewrite sym $ lemmaplusOneRight k in (encodingUnitary xs) `tensor` IdGate {n=1}
-encodingUnitary {n = S k} (PauliX :: xs) = 
-  let p1 = lemmakLTSk k
-  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 (H (S k) ((encodingUnitary xs) `tensor` IdGate {n=1}))
-encodingUnitary {n = S k} (PauliY :: xs) =
-  let p1 = lemmakLTSk k 
-  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 (H (S k) (S (S k) ((encodingUnitary xs) `tensor` IdGate {n=1})))
-encodingUnitary {n = S k} (PauliZ :: xs) = 
-  let p1 = lemmakLTSk k
-  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 ((encodingUnitary xs) `tensor` IdGate {n=1})
+--------------------- CLASSICAL OPTIMISATION ------------------------
+
 
 ||| Generate a matrix of size (n+1) * m of random Double
 export
@@ -122,6 +118,8 @@ randomMatrix (S n) m = do
   ys <- randomMatrix n m
   pure (xs :: ys)
 
+
+
 ||| The (probabilistic) classical optimisation procedure for VQE.
 ||| IO output allows us to use probabilistic optimisation procedures.
 ||| Given all previously observed information, determine new rotation angles for the next VQE run.
@@ -130,7 +128,7 @@ randomMatrix (S n) m = do
 ||| k             -- number of previous iterations of the algorithm
 ||| n             -- arity of the ansatz circuit
 ||| depth         -- depth of the ansatz circuit
-||| cost_function -- function that computes the cost of inputs
+||| h             -- hamiltonian of the problem
 ||| previous_info -- previously used parameters and measurement outcomes
 ||| output        -- new rotation angles for the next run of VQE 
 classicalOptimisation : {n : Nat} -> (depth : Nat) ->
@@ -143,9 +141,37 @@ classicalOptimisation depth h previos_info = do
   pure (phasesRy, phasesRz)
 
 
+--------------------- COMPUTE THE ENERGY ------------------------------
 
------------------------PUTTING QUANTUM AND CLASSICAL PARTS TOGETHER -------------------------
+-- The value of the energy <psi|H|psi> can be computing by applying a unitary operator U_H to |psi> and mesuring the first qubit
 
+
+||| With a tensor product of Pauli matrices, compute the corresponding unitary operator U_H
+||| n      -- number of qubits
+||| h      -- vector that represents the tensor product of Pauli matrices
+||| output -- U_h
+encodingUnitary : {n : Nat} -> (h : PauliBasis n) -> Unitary (S n)
+encodingUnitary [] = IdGate
+encodingUnitary {n = S k} (PauliI :: xs) = rewrite sym $ lemmaplusOneRight k in (encodingUnitary xs) `tensor` IdGate {n=1}
+encodingUnitary {n = S k} (PauliX :: xs) = 
+  let p1 = lemmakLTSk k
+  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 (H (S k) ((encodingUnitary xs) `tensor` IdGate {n=1}))
+encodingUnitary {n = S k} (PauliY :: xs) =
+  let p1 = lemmakLTSk k 
+  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 (H (S k) (S (S k) ((encodingUnitary xs) `tensor` IdGate {n=1})))
+encodingUnitary {n = S k} (PauliZ :: xs) = 
+  let p1 = lemmakLTSk k
+  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 ((encodingUnitary xs) `tensor` IdGate {n=1})
+
+
+
+
+||| Helper function for computeEnergy
+||| n        -- number of qubits
+||| p        -- tensor product of Pauli matrices
+||| nSamples -- the number of time we sample
+||| circuit  -- the ansatz to apply to the qubits
+||| output   -- computed energy
 computeEnergyPauli : QuantumState t => (n : Nat) -> (p : PauliBasis n) -> (nSamples : Nat) -> (circuit : Unitary n) -> IO Double
 computeEnergyPauli n p 0 circuit = pure 0
 computeEnergyPauli n p (S nSamples) circuit = do
@@ -159,14 +185,32 @@ computeEnergyPauli n p (S nSamples) circuit = do
   rest <- computeEnergyPauli {t} n p nSamples circuit
   if (not b) then pure $ 1 + rest else pure $ rest - 1
 
-
-computeEnergy : QuantumState t => (n : Nat) -> (h : Hamiltonian n) -> (nSamples : Nat) -> Unitary n -> IO Double
+||| Apply the ansatz to qubits to get state |psi> and compute <psi|H|psi> using U_H
+||| n        -- number of qubits
+||| h        -- the hamiltonian of the problem
+||| nSamples -- the number of time we sample
+||| circuit  -- the ansatz to apply to the qubits
+||| output   -- computed energy
+computeEnergy : QuantumState t => (n : Nat) -> (h : Hamiltonian n) -> (nSamples : Nat) -> (circuit : Unitary n) -> IO Double
 computeEnergy n [] nSamples circuit = pure 0
 computeEnergy n ((r, p) :: hs) nSamples circuit = do
   res1 <- computeEnergy {t} n hs nSamples circuit
   res2 <- computeEnergyPauli {t} n p nSamples circuit
   pure $ res1 + r*res2/(cast nSamples)
 
+
+
+
+
+-----------------------PUTTING QUANTUM AND CLASSICAL PARTS TOGETHER -------------------------
+
+||| Helper function for VQE
+||| n        -- number of qubits
+||| h        -- the hamiltonian of the problem
+||| nSamples -- number of times we sample to compute <psi|H|psi>
+||| k        -- number of iterations of the algorithm
+||| depth    -- depth of the ansatz circuit
+||| output   -- all observed information : rotation angles and computed energies
 VQE': QuantumState t =>
        (n : Nat) -> (h : Hamiltonian n) -> (nSamples : Nat) -> (k : Nat) -> (depth : Nat) ->
        IO (Vect k (RotationAnglesMatrix depth n, RotationAnglesMatrix depth n, Double))
@@ -178,6 +222,15 @@ VQE' n h nSamples (S k) depth = do
   energy <- computeEnergy {t} n h nSamples circuit
   pure $ (phasesRy, phasesRz, energy) :: previous_info
 
+
+
+||| VQE algorithm
+||| n        -- number of qubits
+||| h        -- the hamiltonian of the problem
+||| nSamples -- number of times we sample to compute <psi|H|psi>
+||| k        -- number of iterations of the algorithm
+||| depth    -- depth of the ansatz circuit
+||| output   -- the lowest computed energy
 export
 VQE : QuantumState t =>
       (n : Nat) -> (h : Hamiltonian n) -> (nSamples : Nat) -> (k : Nat) -> (depth : Nat) ->

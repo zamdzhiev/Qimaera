@@ -12,3 +12,6 @@
 
 * should we implement oracle support?
   - Vladimir: not sure how useful this is
+
+
+* default implementations in Quantum State after correction of "idris rewrite bug"

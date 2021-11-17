@@ -55,13 +55,6 @@ lemmaDiffZero : (n : Nat) -> diff n 0 = n
 lemmaDiffZero 0 = Refl
 lemmaDiffZero (S k) = rewrite lemmaDiffZero k in Refl
 
-||| TODO: below function is needed for applyUnitary implementation.
-||| But the Idris2 "rewrite linearity" bug prevents us from implementing it.
--- public export
--- splitFancy : {n : Nat} -> (i : Nat) -> {auto prf : (i < n) = True} -> (1 xs : LVect n a) -> LPair (LVect i a) (LVect (diff n i) a)
--- splitFancy 0 xs = rewrite lemmaDiffZero n in [] # xs
--- splitFancy (S k) xs = ?splitFancy_rhs_2
-
 public export
 consLin : (1 _ : Bool) -> (1 _ : Vect n Bool) -> Vect (S n) Bool
 consLin False [] = [False]

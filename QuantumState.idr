@@ -42,7 +42,6 @@ interface QuantumState (0 t : Nat -> Type) where
     pure q
 
   ||| Apply a unitary circuit to the qubits specified by the LVect argument
-  ||| TODO: write default implementation after the Idris2 developers fix the "rewrite linearity" bug
   applyUnitary : {n : Nat} -> {i : Nat} ->
                  (1 _ : LVect i Qubit) -> Unitary i -> QStateT (t n) (t n) (LVect i Qubit)
 
