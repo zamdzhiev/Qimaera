@@ -29,6 +29,6 @@ solve : (n : Nat) -> Unitary ((S (S n)) + 1)
 solve n = 
   let circ1 = (flip n (S n) {prf = lemmaLTSucc n}) # IdGate {n=1}
       circ2 = flip n n {prf = lemmaSolve n} # IdGate {n = 1}
-      circ1' = circ1 @@ multipleQubitControlledNOT ((S (S n)) + 1) @@ circ1
-      circ2' = circ2 @@ multipleQubitControlledNOT ((S (S n)) + 1) @@ circ2
-  in circ1' @@ circ2'
+      circ1' = circ1 . multipleQubitControlledNOT ((S (S n)) + 1) . circ1
+      circ2' = circ2 . multipleQubitControlledNOT ((S (S n)) + 1) . circ2
+  in circ1' . circ2'
