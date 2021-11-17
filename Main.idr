@@ -23,48 +23,10 @@ import Examples
 import RUS
 
 -- %default total
-testDepth : Unitary 3
-testDepth = 
---  CNOT 0 1 (CNOT 2 1 (H 1 (CNOT 0 2 IdGate)))
---  H 2 (H 1 (H 0 (H 1 IdGate)))
-  CNOT 1 2 (CNOT 0 2 (CNOT 0 1 (H 1 (P 0.5 1 (H 1 IdGate)))))
-
-
-
-
-
-testBreak : QuantumOp 0 0 (Vect 6 Bool)
-testBreak  = do
-  [q1,q2,q3,q4] <- newQubits 4
-  [b3] <- measure [q3]
-  [q5,q6] <- newQubits 2
-  [q4,q2,q5] <- applyUnitary [q4,q2,q5] (X 0 IdGate)
-  [b1,b4,b2] <- measure [q1,q4,q2]
-  [b5,b6] <- measure [q5,q6]
-  pure ([b1,b2,b3,b4,b5,b6])
-
-
-testG : (nbIter : Nat) -> IO (Vect 3 Nat)
-testG 0 = pure [0,0,0]
-testG (S k) = do
-  [a,b,c] <- testG k
-  v <- testGrover
-  case v of
-       [True,False,True,False] => pure [S a,b,c]
-       [False,True,False,True] => pure [a,S b,c]
-       _ => pure [a,b,S c]
   
-testCH : IO (Vect 2 Bool)
-testCH = run (
-  do 
-    [q0,q1] <- newQubits {t = SimulatedState} 2
-    [q0] <- applyUnitary [q0] XGate
-    [q0,q1] <- applyUnitary [q0,q1] controlledH
-    measure [q0,q1])
 
-
--- Perform 1000 fair coin tosses and count the number of heads
--- (via simulating the quantum dynamics).
+||| Perform 1000 fair coin tosses and count the number of heads
+||| (via simulating the quantum dynamics).
 testCoins : IO ()
 testCoins = do
   let f = coin {t = SimulatedState}
@@ -72,13 +34,6 @@ testCoins = do
   let heads = filter (== True) s
   putStrLn $ "Number of heads: " ++ (show (length heads))
 
-
-export
-testVQE : IO Double
-testVQE = do
-  putStrLn "Test VQE"
-  let hamiltonian = [(2, [PauliX, PauliY]),(3,[PauliZ, PauliI])]
-  VQE {t = SimulatedState} 2 hamiltonian 5 10 5
 
 ||| Call the drawTeleportation function (using the SimulatedState implementation)
 ||| then execute the runTeleportation function 1000 times and report on the
@@ -93,56 +48,64 @@ testTeleport = do
   putStrLn "\n\nFor 1000 measurements"
   putStrLn ("Number of True measurements : " ++ show nbT) 
 
+||| Test graph for the QAOA problem
 export
 graph1 : Graph 5
 graph1 = AddVertex (AddVertex (AddVertex (AddVertex (AddVertex Empty []) [True]) [True, True]) [False, True, False]) [False, False, True, True]
 
-
+||| Execute QAOA with 100 samples on the previous graph to solve the MAXCUT problem
 export
 testQAOA : IO (Cut 5)
 testQAOA = do
-  --let circuit = QAOA_Unitary (replicate 2 0) (replicate 2 0) graph1
- -- draw circuit
   QAOA {t = SimulatedState} 100 1 graph1
+
+
+||| Small test for the VQE algorithm
+export
+testVQE : IO Double
+testVQE = do
+  putStrLn "Test VQE"
+  let hamiltonian = [(2, [PauliX, PauliY]),(3,[PauliZ, PauliI])]
+  VQE {t = SimulatedState} 2 hamiltonian 5 10 5
+
 
 export
 main : IO ()
 main = do
---  testVQE
---  putStrLn (show (depth testDepth))
---  testCoins
---  drawTeleportation
---  testTeleport
+
+  -- Execute the example file and draw the circuit examples
+  drawExamples
+
+  -- Draw the Quantum Fourier Transform for n = 3
 --  putStrLn "\n\n\nQuantum Fourier Transform for n = 3"
 --  draw (qft 3)
---  putStrLn "\nSmall test Grover"
---  v <- testGrover
---  putStrLn (show v)
---  putStrLn "\nSmall test VQE"
---  w <- VQE 3 (replicate 8 (replicate 8 0)) 2 1
---  putStrLn (show w)
---  draw (solve 2)
---  draw (ansatz 4 2 [[1,2,3,4],[9,10,11,12],[17,18,19,20]] [[5,6,7,8],[13,14,15,16],[21,22,23,24]])
---  [b1,b2] <- testCH
---  putStrLn (show (b1,b2))
 
+
+  -- Execute the coin toss example
+--  putStrLn "\nTest coin toss"
+--  testCoins
+
+  -- Teleportation protocol
+--  putStrLn "\nTest Teleportation protocol"
+--  testTeleport
+
+  -- Repeat until success
+--  putStrLn "\nTest Repeat until success"
 --  testMultipleRUS 10000
---  pure ()
 
---  let k2 = (AddVertex singletonGraph [True])
---  let circuit1 = QAOA_Unitary (replicate 2 0) (replicate 2 0) k2
---   draw circuit1
+  -- VQE
+--  putStrLn "\nSmall test with VQE"
+--  r <- testVQE
+--  putStrLn $ "result from VQE : " ++ show r
 
+  -- QAOA
+--  putStrLn "\nSmall test with QAOA"
+--  cut <- testQAOA
+--  putStrLn $ "result from QAOA : " ++ show cut
 
---  let graph = AddVertex k2 [False, True]
---  let circuit2 = QAOA_Unitary (replicate 2 0) (replicate 2 0) graph
---  draw circuit2
+  pure ()
+
 
   
-
---  v <- testQAOA
---  putStrLn ("result from QAOA : " ++ show v)
-
-  drawExamples
 
 

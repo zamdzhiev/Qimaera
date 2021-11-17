@@ -207,10 +207,10 @@ drawDepthExamples = do
   putStrLn "The depth of the following circuit"
   draw depthExample1
   putStrLn  ("is " ++ show (depth depthExample1))
-  putStrLn "The depth of the following circuit"
+  putStrLn "\n\nThe depth of the following circuit"
   draw depthExample2
   putStrLn $ "is " ++ show (depth depthExample2)
-  putStrLn "The depth of the following circuit"
+  putStrLn "\n\nThe depth of the following circuit"
   draw depthExample3
   putStrLn $ "is " ++ show (depth depthExample3)
 
@@ -272,3 +272,4 @@ drawExamples = do
   drawApplyExamples
   drawParamExamples
   drawDepthExamples
+  putStrLn "\nSee the code for effectful quantum operations in the file Examples.idr"

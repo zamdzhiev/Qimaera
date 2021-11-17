@@ -90,4 +90,16 @@ testGrover : IO (Vect 4 Bool)
 testGrover = 
   grover {t = SimulatedState} 4 {p = 1} (solve 2) 1
 
+public export
+testG : (nbIter : Nat) -> IO (Vect 3 Nat)
+testG 0 = pure [0,0,0]
+testG (S k) = do
+  [a,b,c] <- testG k
+  v <- testGrover
+  case v of
+       [True,False,True,False] => pure [S a,b,c]
+       [False,True,False,True] => pure [a,S b,c]
+       _ => pure [a,b,S c]
+
+
 

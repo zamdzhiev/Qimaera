@@ -71,12 +71,20 @@ Defines the `Qubit` type, the `QuantumState` interface for quantum operations an
 The Qubit type is used to identify individual qubits. This type does not carry any quantum state information.
 
 The QuantumState interface is an abstraction over the representation of a quantum state. It is parameterised by the number of qubits it contains. It introduces a few operations on qubits:
- * newQubits    : Adds p new qubits to a quantum state.
- * applyUnitary : Apply a unitary gate to a set of qubits. The parameters are the linear vector of qubit identifiers for the set of qubits and the unitary operator.
- * measure      : Measure a set of qubits. The parameters is the linear vectors of identifiers for the qubits we wish to measure.
- * run          : Run a sequence of quantum operations, starting with no qubits and measuring all the qubits at the end.
+ * `newQubits`    : Adds p new qubits to a quantum state.
+ * `applyUnitary` : Apply a unitary gate to a set of qubits. The parameters are the linear vector of qubit identifiers for the set of qubits and the unitary operator.
+ * `measure`      : Measure a set of qubits. The parameters is the linear vectors of identifiers for the qubits we wish to measure.
+ * `run`          : Run a sequence of quantum operations, starting with no qubits and measuring all the qubits at the end.
 
 This interface is then implemented for the type SimulatedState, which simulates them using the linear algebraic representation of qubits and unitary operators. Some examples are given in `Examples.idr`
+
+  * **`Examples.idr`**
+
+The file contains simple examples of programs (unitary circuits and quantum operations) to get started with the libraries.
+
+  * **`BrokenExamples.idr`**
+
+The file contains common examples of wrong programs that can be detected by Idris compiler.
 
 
   * **`Lemmas.idr`**
@@ -138,13 +146,6 @@ A quantum state transformer which realises a fair coin toss in the obvious way:
  * then apply a hadamard gate to it, thereby preparing state |+>
  * and finally measure the qubit and return this as the result
 
-  * **`Examples.idr`**
-
-The file contains simple examples of programs to get started with the libraries.
-
-  * **`BrokenExamples.idr`**
-
-The file contains common examples of wrong programs that can be detected by Idris compiler.
 
   * **`OptimiseUnitary.idr`**
 
@@ -152,4 +153,5 @@ A small program for a first optimisation of quantum circuits. The main purpose h
 
   * **`Main.idr`**
 
+More examples on the different algorithms we implemented.
 Uncomment some lines to execute the corresponding programs.
