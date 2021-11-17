@@ -101,7 +101,7 @@ Defines all necesary matrix operations for quantum state simulations.
 
   * **`QFT.idr`**
 
-The quantum circuit for the Quantum Fourier Transform. Calling `qft n` returns the QFT for $n$ qubits.
+The quantum circuit for the Quantum Fourier Transform. Calling `qft n` returns the QFT for n qubits.
 
   * **`Teleportation.idr`**
 
