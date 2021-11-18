@@ -1,4 +1,4 @@
-module VanillaQAOA
+module QAOA
 
 import Data.Nat
 import Data.Vect

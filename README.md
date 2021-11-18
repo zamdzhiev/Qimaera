@@ -106,7 +106,7 @@ The quantum circuit for the Quantum Fourier Transform. Calling `qft n` returns t
 Implementation of the quantum teleportation protocol. 
 The function `runTeleportation` runs the teleportation protocol where the qubit to be teleported is in state |+>.
 
-  * **`VanillaQAOA.idr`**
+  * **`QAOA.idr`**
 
 Implementation of QAOA with vanilla optimisation procedure to solve the MAXCUT problem.
 QAOA is an example of variational quantum algorithm that is used to solve optimisation problems.
@@ -115,7 +115,7 @@ This code shows how classical and quantum information interact.
 
   * **`Graph.idr`**
 
-Definition of graphs used in `VanillaQAOA.idr` for solving the MAXCUT problem.
+Definition of graphs used in `QAOA.idr` for solving the MAXCUT problem.
 
   * **`VQE.idr`**
 

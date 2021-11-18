@@ -17,7 +17,7 @@ import VQE
 import Complex
 import QuantumState
 import CoinToss
-import VanillaQAOA
+import QAOA
 import Graph
 import Examples
 import RUS
