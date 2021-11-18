@@ -7,7 +7,6 @@ import LinearTypes
 import Unitary
 import Data.List
 
-||| 
 ||| Problem: Given an input qubit |q> and a single-qubit unitary operation U,
 |||          return the state U|q>. The "Repeat Until Success" approach solves
 |||          this problem in the following way:

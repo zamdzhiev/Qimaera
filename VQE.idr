@@ -143,10 +143,10 @@ classicalOptimisation depth h previos_info = do
 
 --------------------- COMPUTE THE ENERGY ------------------------------
 
--- The value of the energy <psi|H|psi> can be computing by applying a unitary operator U_H to |psi> and mesuring the first qubit
-
+-- The value of the energy <psi|H|psi> can be computed by applying a unitary operator U_H to |psi> and mesuring the first qubit
 
 ||| With a tensor product of Pauli matrices, compute the corresponding unitary operator U_H
+|||
 ||| n      -- number of qubits
 ||| h      -- vector that represents the tensor product of Pauli matrices
 ||| output -- U_h
@@ -164,9 +164,8 @@ encodingUnitary {n = S k} (PauliZ :: xs) =
   in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 ((encodingUnitary xs) `tensor` IdGate {n=1})
 
 
-
-
 ||| Helper function for computeEnergy
+|||
 ||| n        -- number of qubits
 ||| p        -- tensor product of Pauli matrices
 ||| nSamples -- the number of time we sample
@@ -186,6 +185,7 @@ computeEnergyPauli n p (S nSamples) circuit = do
   if (not b) then pure $ 1 + rest else pure $ rest - 1
 
 ||| Apply the ansatz to qubits to get state |psi> and compute <psi|H|psi> using U_H
+|||
 ||| n        -- number of qubits
 ||| h        -- the hamiltonian of the problem
 ||| nSamples -- the number of time we sample
