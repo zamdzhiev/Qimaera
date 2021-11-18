@@ -16,7 +16,7 @@ The latest version of Idris can be found [here](https://www.idris-lang.org/pages
 
 Type `make package` to build the whole package.
 
-Type `make` to compile the library.
+Type `make` to compile the main file and `./run`to run it.
 
 ## <a id="overview"></a> Library Overview
 
@@ -53,7 +53,7 @@ Visualize circuits :
 This file also provides some function to compute the number of gates and the depth of a circuit.
 
 
-  * **`QStateT.idr`**
+### **`QStateT.idr`**
 
 Quantum state transformer for effectful quantum computations (used in the file `QuantumState.idr`).
 
@@ -62,7 +62,7 @@ The type `QStateT initialType finalType returnType` means we are performing a qu
 This was inspired by the indexed state monad in Haskell and adapted to linear types. 
 
 
-  * **`QuantumState.idr`**
+### **`QuantumState.idr`**
 
 Defines the `Qubit` type, the `QuantumState` interface for quantum operations and provides an implementation of this interface for simulations.
 
@@ -76,54 +76,54 @@ The QuantumState interface is an abstraction over the representation of a quantu
 
 This interface is then implemented for the type SimulatedState, which simulates them using the linear algebraic representation of qubits and unitary operators. Some examples are given in `Examples.idr`
 
-  * **`Examples.idr`**
+### **`Examples.idr`**
 
 The file contains simple examples of programs (unitary circuits and quantum operations) to get started with the libraries.
 
-  * **`BrokenExamples.idr`**
+### **`BrokenExamples.idr`**
 
 The file contains common examples of wrong programs that can be detected by Idris compiler.
 
 
-  * **`Lemmas.idr`**
+### **`Lemmas.idr`**
 
 Proofs of all the lemmas used to define all the basic function in `Unitary.idr`. Some of these lemmas are reused in quantum algorithms.
 
-  * **`LinearTypes.idr`**
+### **`LinearTypes.idr`**
 
 Defines some linear types such as linear vectors, and implements some basic functions with these types.
 
-  * **`Matrix.idr`**
+### **`Matrix.idr`**
 
 Defines all necesary matrix operations for quantum state simulations.
 
-  * **`QFT.idr`**
+### **`QFT.idr`**
 
 The quantum circuit for the Quantum Fourier Transform. Calling `qft n` returns the QFT for n qubits.
 
-  * **`Teleportation.idr`**
+### **`Teleportation.idr`**
 
 Implementation of the quantum teleportation protocol. 
 The function `runTeleportation` runs the teleportation protocol where the qubit to be teleported is in state |+>.
 
-  * **`VanillaQAOA.idr`**
+### **`VanillaQAOA.idr`**
 
 Implementation of QAOA with vanilla optimisation procedure to solve the MAXCUT problem.
 QAOA is an example of variational quantum algorithm that is used to solve optimisation problems.
 This code shows how classical and quantum information interact.
 
 
-  * **`Graph.idr`**
+### **`Graph.idr`**
 
 Definition of graphs used in `VanillaQAOA.idr` for solving the MAXCUT problem.
 
-  * **`VQE.idr`**
+### **`VQE.idr`**
 
 Implementation of VQE with vanilla optimisation.
 VQE is used find an upper bound for the lowest eigenvalue of a Hamiltonian operator.
 It is also a quantum variational algorithm.
 
-  * **`RUS.idr`**
+### **`RUS.idr`**
 
 Implementation of Repeat until success.
 
@@ -137,7 +137,7 @@ Given an input qubit |q> and a single-qubit unitary operation U, return the stat
  4. With (high) probability the result is now U|q> and then stop.
  5. With (low) probability the result is state E|q>, where E is some other unitary operator (depending on U), so we uncompute the error by applying E^dagger and we go back to step 1.
 
-  * **`CoinToss.idr`**
+### **`CoinToss.idr`**
 
 A quantum state transformer which realises a fair coin toss in the obvious way: 
  * first create a new qubit in state |0>
@@ -145,11 +145,11 @@ A quantum state transformer which realises a fair coin toss in the obvious way:
  * and finally measure the qubit and return this as the result
 
 
- ### **`OptimiseUnitary.idr`**
+### **`OptimiseUnitary.idr`**
 
 A small program for a first optimisation of quantum circuits. The main purpose here is to show how unitary gates in Qimaera can be manipulated to be optimised with respect to some criterion.
 
- ### **`Main.idr`**
+### **`Main.idr`**
 
 More examples on the different algorithms we implemented.
 Uncomment some lines to execute the corresponding programs.
