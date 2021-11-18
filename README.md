@@ -18,13 +18,11 @@ Type `make package` to build the whole package.
 
 Type `make` to compile the library.
 
+## <a id="overview"></a> Library Overview
 
+### **`Unitary.idr`**
 
-## <a id="overview"></a> Library overview
-
-  * **`Unitary.idr`**
-
-Build quantum circuits.
+An algebraic representation of unitary quantum circuits.
 
 We first define the `Unitary` data type, which represents the unitary gates. They are only defined as circuits, in terms of gates and wires, and are nor applied to any qubit yet.
 The `Unitary` data type is parametrized by the number of wires in the circuit. It has 4 constructors : 
@@ -147,11 +145,16 @@ A quantum state transformer which realises a fair coin toss in the obvious way:
  * and finally measure the qubit and return this as the result
 
 
-  * **`OptimiseUnitary.idr`**
+ ### **`OptimiseUnitary.idr`**
 
 A small program for a first optimisation of quantum circuits. The main purpose here is to show how unitary gates in Qimaera can be manipulated to be optimised with respect to some criterion.
 
-  * **`Main.idr`**
+ ### **`Main.idr`**
 
 More examples on the different algorithms we implemented.
 Uncomment some lines to execute the corresponding programs.
+
+
+## Getting Started
+
+We recommend starting with...
