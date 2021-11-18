@@ -57,7 +57,7 @@ costUnitary' {n = S k} gamma (True  :: xs) currentUnitary =
 costUnitary : {n : Nat} -> (graph: Graph n) -> (gamma : Double) -> Unitary n
 costUnitary Empty _ = IdGate
 costUnitary (AddVertex graph edges) gamma = 
-  let circuit = (IdGate {n = 1}) `tensor` (costUnitary graph gamma)
+  let circuit = (IdGate {n = 1}) # (costUnitary graph gamma)
       proof1 = lemmaLTSucc n
   in costUnitary' gamma edges circuit
 

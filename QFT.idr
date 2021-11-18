@@ -38,7 +38,7 @@ recursivePattern : (n : Nat) -> Unitary n
 recursivePattern 0 = IdGate
 recursivePattern 1 = HGate
 recursivePattern (S (S k)) = 
-  let t1 = tensor (recursivePattern (S k)) IdGate
+  let t1 = (recursivePattern (S k)) # IdGate
   in rewrite sym $ lemmaplusOneRight k in apply (cRm (S k)) t1 [S k, 0] {prf = lemmaInj1 k}
 
 export
@@ -46,5 +46,5 @@ qft : (n : Nat) -> Unitary n
 qft Z = IdGate
 qft (S k) = 
   let g = recursivePattern (S k)
-      h = tensor (IdGate {n = 1}) (qft k)
+      h = (IdGate {n = 1}) # (qft k)
   in h . g

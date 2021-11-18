@@ -134,16 +134,16 @@ Hamiltonian n = List (Double, PauliBasis n)
 ||| output -- U_h
 encodingUnitary : {n : Nat} -> (h : PauliBasis n) -> Unitary (S n)
 encodingUnitary [] = IdGate
-encodingUnitary {n = S k} (PauliI :: xs) = rewrite sym $ lemmaplusOneRight k in (encodingUnitary xs) `tensor` IdGate {n=1}
+encodingUnitary {n = S k} (PauliI :: xs) = rewrite sym $ lemmaplusOneRight k in (encodingUnitary xs) # IdGate {n=1}
 encodingUnitary {n = S k} (PauliX :: xs) = 
   let p1 = lemmakLTSk k
-  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 (H (S k) ((encodingUnitary xs) `tensor` IdGate {n=1}))
+  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 (H (S k) ((encodingUnitary xs) # IdGate {n=1}))
 encodingUnitary {n = S k} (PauliY :: xs) =
   let p1 = lemmakLTSk k 
-  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 (H (S k) (S (S k) ((encodingUnitary xs) `tensor` IdGate {n=1})))
+  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 (H (S k) (S (S k) ((encodingUnitary xs) # IdGate {n=1})))
 encodingUnitary {n = S k} (PauliZ :: xs) = 
   let p1 = lemmakLTSk k
-  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 ((encodingUnitary xs) `tensor` IdGate {n=1})
+  in rewrite sym $ lemmaplusOneRight k in CNOT (S k) 0 ((encodingUnitary xs) # IdGate {n=1})
 
 
 -- the next function computes <psi|H|psi>, for H a tensor product of Pauli Matrices
@@ -169,7 +169,7 @@ computeEnergyPauli n p (S nSamples) circuit = do
   let encodingCircuit = encodingUnitary p
   (b :: _) <- run (do
                qs <- newQubits {t} (S n)
-               qs <- applyUnitary qs ( (IdGate {n=1}) `tensor` circuit)
+               qs <- applyUnitary qs ( (IdGate {n=1}) # circuit)
                qs <- applyUnitary qs encodingCircuit
                measureAll qs
                )
