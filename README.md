@@ -3,7 +3,8 @@ Idris libraries for type safe (variational) quantum programming
     
  * [Installing Idris2](#installing)
  * [Compiling Qimaera library](#compiling)
- * [Library overview](#overview)
+ * [Library Overview](#overview)
+ * [Getting Started](#getting_started)
 
 ## <a id="installing"></a> Installing Idris2
 
@@ -155,6 +156,6 @@ More examples on the different algorithms we implemented.
 Uncomment some lines to execute the corresponding programs.
 
 
-## Getting Started
+## <a id="getting_started"></a> Getting Started
 
-We recommend starting with...
+We recommend starting by reading and executing code from file `Example.idr`. It contains simple examples using the functions defined in `Unitary.idr` and `QuantumState.idr`.
