@@ -257,6 +257,18 @@ quantum_operation4 =
       pure [b1,b2,b3]
       )
 
+drawQuantumOp : IO ()
+drawQuantumOp = do
+  [b1,b2,b3] <- quantum_operation4 {t = SimulatedState}
+  putStrLn "\n\nExecuting last example of quantum operations : sequencing quantum operations using run"
+  putStrLn "Create 2 qubits q1 and q2"
+  putStrLn "Apply `toBellBasis` circuit on these two qubits"
+  putStrLn "Create one new qubit q3"
+  putStrLn "Apply the toffoli gate on these 3 qubits"
+  putStrLn $ "Measure q2 : result is " ++ show b2
+  putStrLn "Apply CNOT on q3 and q1"
+  putStrLn $ "Measure q1 and q3 : results are " ++ show b1 ++ " and " ++ show b3
+
 ------------------------------------ Draw all example circuits ------------------------------------
 
 export
@@ -272,4 +284,4 @@ drawExamples = do
   drawApplyExamples
   drawParamExamples
   drawDepthExamples
-  putStrLn "\nSee the code for effectful quantum operations in the file Examples.idr"
+  drawQuantumOp
