@@ -15,6 +15,8 @@ import QuantumState
 
 ------------------------ Example of circuits built with unitary contructors -----------------------
 
+-- These functions only use the 4 constructors of the Unitary data type : IdGate, H, P, and CNOT
+
 ||| Put two qubits initally in state |00> in the Bell state
 public export
 toBellBasis : Unitary 2
@@ -40,6 +42,8 @@ drawConstructorsExample = do
 
 ---------------------------------- Examples using composition -------------------------------------
 
+-- Sequential composition of unitary circuits
+
 compose_example1 : Unitary 1
 compose_example1 = TGate . HGate
 
@@ -56,6 +60,8 @@ drawComposeExamples = do
 
 ------------------------------------ Examples using tensor product --------------------------------
 
+-- Parallel composition (ie tensor product) of unitary circuits
+
 ||| Example using the # operator for tensor product
 tensorExample1 : Unitary 4
 tensorExample1 = HGate # PGate pi # CNOTGate
@@ -71,7 +77,7 @@ tensorMapSimpleExample : Unitary 3
 tensorMapSimpleExample = tensorMapSimple [HGate, PGate pi, HGate]
 
 ||| Example using tensorMap function
-||| ||| Tensor product of a Vector of Unitary operators
+||| Tensor product of a Vector of Unitary operators
 tensorMapExample : Unitary 6
 tensorMapExample = tensorMap [CNOTGate, toBellBasis, CNOTGate]
 
@@ -99,6 +105,8 @@ drawToBellBasis2 = do
 
 ---------------------------------------- Examples using adjoint -----------------------------------
 
+-- The adjoint of a unitary circuit is the inverse unitary circuit
+
 adjoint_example1 : Unitary 2
 adjoint_example1 = adjoint toBellBasis
 
@@ -124,6 +132,8 @@ exampleComposeTensor1 = do
 
 
 ---------------------------------------- Examples using apply -------------------------------------
+
+-- Apply : apply a smaller unitary circuit of size i to a bigger one of size n, giving the vector v of wire indices on which we wish to apply the smaller circuit
 
 U : Unitary 3
 U = HGate # IdGate {n = 1} # (PGate pi)
@@ -159,6 +169,8 @@ drawApplyExamples = do
 
 -------------------------------------- Example using controlled -----------------------------------
 
+-- Compute the controlled version of a unitary circuit
+
 controlled_example1 : Unitary 2
 controlled_example1 = controlled TGate
 
@@ -168,6 +180,9 @@ multipleQubitsCNOTExample : Unitary 4
 multipleQubitsCNOTExample = multipleQubitControlledNOT 4
 
 --------------------------------- Examples of parametrized circuits -------------------------------
+
+-- Unitary circuits can be parametrized by classical information
+
 
 parametrized_example1 : Bool -> Unitary 1
 parametrized_example1 b = if b then HGate else PGate pi
@@ -189,7 +204,7 @@ drawParamExamples = do
 
 
 ------------------------------------ Example of depth computation ---------------------------------
-||| Compute the depth of a circuit
+-- Compute the depth of a circuit 
 
 
 depthExample1 : Unitary 3
