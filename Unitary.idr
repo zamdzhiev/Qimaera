@@ -67,9 +67,9 @@ public export
 public export
 adjoint : Unitary n -> Unitary n
 adjoint IdGate = IdGate
-adjoint (H j g) = compose (adjoint g) (H j IdGate)
-adjoint (P p j g) = compose (adjoint g) (P (-p) j IdGate)
-adjoint (CNOT c t g) = compose (adjoint g) (CNOT c t IdGate)
+adjoint (H j g) = (adjoint g) . (H j IdGate)
+adjoint (P p j g) = (adjoint g) . (P (-p) j IdGate)
+adjoint (CNOT c t g) = (adjoint g) . (CNOT c t IdGate)
 
 
 ---------------------TENSOR PRODUCT----------------------------

@@ -47,4 +47,4 @@ qft Z = IdGate
 qft (S k) = 
   let g = recursivePattern (S k)
       h = tensor (IdGate {n = 1}) (qft k)
-  in compose h g
+  in h . g

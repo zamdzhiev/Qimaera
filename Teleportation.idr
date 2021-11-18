@@ -24,7 +24,7 @@ telep1 = H 0 (CNOT 0 1 (apply toBellBasis IdGate [1,2]))
 ||| The two Bool arguments indicate the measurement results.
 export
 unitary_correction : Bool -> Bool -> Unitary 1
-unitary_correction b1 b2 = (if b2 then XGate else IdGate) `compose` (if b1 then ZGate else IdGate)
+unitary_correction b1 b2 = (if b2 then XGate else IdGate) . (if b1 then ZGate else IdGate)
 
 ||| The Quantum Teleportation Protocol as a state transformer.
 export
