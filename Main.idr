@@ -90,7 +90,7 @@ main = do
 --  testTeleport
 
   -- Repeat until success
-  putStrLn "\nTest 'Repeat Until Success'. Probability of success is 2/3 for this example."
+  putStrLn "\nTest 'Repeat Until Success'. Probability to measure '1' is 2/3 for this example."
   testMultipleRUS 10000
 
   -- VQE
