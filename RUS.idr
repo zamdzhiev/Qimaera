@@ -2,7 +2,7 @@ module RUS
 
 import Data.Vect
 import QStateT
-import QuantumState
+import QuantumOp
 import LinearTypes
 import Unitary
 import Data.List
@@ -19,7 +19,7 @@ import Data.List
 |||    (depending on U), so we uncompute the error by applying E^dagger and we go back to step 1.
 
 export
-RUS : QuantumState t => (1 _ : Qubit) -> (u' : Unitary 2) -> (e : Unitary 1) -> QStateT (t 1) (t 1) Qubit
+RUS : QuantumOp t => (1 _ : Qubit) -> (u' : Unitary 2) -> (e : Unitary 1) -> QStateT (t 1) (t 1) Qubit
 RUS q u' e = do
   q' <- newQubit
   [q',q] <- applyUnitary [q',q] u'
@@ -37,7 +37,7 @@ export
 testRUS : IO Bool
 testRUS = do
   [b] <- run (do
-              q <- newQubit {t = SimulatedState}
+              q <- newQubit {t = SimulatedOp}
               q <- RUS q example_u' IdGate
               measure [q]
          )

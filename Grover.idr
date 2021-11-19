@@ -10,7 +10,7 @@ import Lemmas
 import Control.Linear.LIO
 import QStateT
 import AlterningBitsOracle
-import QuantumState
+import QuantumOp
 
 %default total
 
@@ -68,7 +68,7 @@ grover' n oracle nbIter =
   
 
 public export total
-grover : QuantumState t =>
+grover : QuantumOp t =>
          (n : Nat) -> {p : Nat} -> (oracle : Unitary (n + p)) -> (nbIter : Nat) -> IO (Vect n Bool)
 grover n oracle nbIter = do
     let circuit = grover' n oracle nbIter
@@ -88,7 +88,7 @@ grover n oracle nbIter = do
 public export
 testGrover : IO (Vect 4 Bool)
 testGrover = 
-  grover {t = SimulatedState} 4 {p = 1} (solve 2) 1
+  grover {t = SimulatedOp} 4 {p = 1} (solve 2) 1
 
 public export
 testG : (nbIter : Nat) -> IO (Vect 3 Nat)

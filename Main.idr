@@ -15,7 +15,7 @@ import Grover
 import AlterningBitsOracle
 import VQE
 import Complex
-import QuantumState
+import QuantumOp
 import CoinToss
 import QAOA
 import Graph
@@ -29,21 +29,21 @@ import RUS
 ||| (via simulating the quantum dynamics).
 testCoins : IO ()
 testCoins = do
-  let f = coin {t = SimulatedState}
+  let f = coin {t = SimulatedOp}
   s <- sequence (Data.List.replicate 1000 f)
   let heads = filter (== True) s
   putStrLn $ "Number of heads: " ++ (show (length heads))
 
 
-||| Call the drawTeleportation function (using the SimulatedState implementation)
+||| Call the drawTeleportation function (using the SimulatedOp implementation)
 ||| then execute the runTeleportation function 1000 times and report on the
 ||| observed measurement results on the third qubit
 ||| (which is in state |+> at the end of the teleportation protocol).
 export
 testTeleport : IO ()
 testTeleport = do
-  drawTeleportation {t = SimulatedState}
-  l <- sequence (Data.List.replicate 1000 (runTeleportation {t = SimulatedState}))
+  drawTeleportation {t = SimulatedOp}
+  l <- sequence (Data.List.replicate 1000 (runTeleportation {t = SimulatedOp}))
   let nbT = length $ filter (\x => (last x) == True) l
   putStrLn "\n\nFor 1000 measurements"
   putStrLn ("Number of True measurements : " ++ show nbT) 
@@ -57,7 +57,7 @@ graph1 = AddVertex (AddVertex (AddVertex (AddVertex (AddVertex Empty []) [True])
 export
 testQAOA : IO (Cut 5)
 testQAOA = do
-  QAOA {t = SimulatedState} 100 1 graph1
+  QAOA {t = SimulatedOp} 100 1 graph1
 
 
 ||| Small test for the VQE algorithm
@@ -66,7 +66,7 @@ testVQE : IO Double
 testVQE = do
   putStrLn "Test VQE"
   let hamiltonian = [(2, [PauliX, PauliY]),(3,[PauliZ, PauliI])]
-  VQE {t = SimulatedState} 2 hamiltonian 5 10 5
+  VQE {t = SimulatedOp} 2 hamiltonian 5 10 5
 
 
 export

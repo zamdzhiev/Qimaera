@@ -10,7 +10,7 @@ import QStateT
 import System.Random
 import Injection
 import Complex
-import QuantumState
+import QuantumOp
 
 
 ------------------------ Example of circuits built with unitary contructors -----------------------
@@ -232,54 +232,30 @@ drawDepthExamples = do
 
 ----------------------------------- Examples of quantum operations --------------------------------
 
-||| QuantumOp n m t : 
-||| Simulation of a quantum operation from a quantum state with n qubits to a quantum state of m qubits. 
-||| The user is returned a value of type t
-
-
-||| Create a new qubit and apply a H gate
-quantum_operation : QuantumOp 0 1 Qubit
-quantum_operation = do
-  q <- newQubit
-  applyH q
-  
-
-||| Apply the toBellBasis to 2 input qubits in a quantum state with 3 qubits
-||| Return the linear pair of the 2 qubit pointers
-quantum_operation2 : (1 _ : Qubit) -> (1 _ : Qubit) -> QuantumOp 3 3 (LPair Qubit Qubit)
-quantum_operation2 q1 q2 = do
-  [r1, r2] <- applyUnitary [q1, q2] toBellBasis
-  pure (r1 # r2)
-
-||| Apply a H gate to a qubit in a quantum state with 2 qubits and measure it
-quantum_operation3 : (1 _ : Qubit) -> QuantumOp 2 1 Bool
-quantum_operation3 q = do
-  q <- applyH q
-  measureQubit q
 
 ||| Sequencing quantum operations using run
 ||| 
-quantum_operation4 : QuantumState t => IO (Vect 3 Bool)
+quantum_operation4 : QuantumOp t => IO (Vect 3 Bool)
 quantum_operation4 = 
   run (do
-      [q1,q2] <- newQubits {t=t} 2
-      [q1,q2] <- applyUnitary [q1,q2] toBellBasis
-      q3 <- newQubit
-      [q1,q3,q2] <- applyUnitary [q1,q3,q2] toffoli
-      [b2] <- measure [q2]
-      (q3 # q1) <- applyCNOT q3 q1 
-      [b1,b3] <- measure [q1,q3]
-      pure [b1,b2,b3]
+      [q1,q2] <- newQubits {t=t} 2                      --create 2 new qubits q1 and q2
+      [q1,q2] <- applyUnitary [q1,q2] toBellBasis       --apply the toBellBasis unitary circuit to q1 and q2
+      q3 <- newQubit                                    --create 1 new qubit q3
+      [q1,q3,q2] <- applyUnitary [q1,q3,q2] toffoli     --apply toffoli gate on q1, q3 and q2
+      [b2] <- measure [q2]                              --measure q2
+      (q3 # q1) <- applyCNOT q3 q1                      --apply CNOT on q3 and q1
+      [b1,b3] <- measure [q1,q3]                        --measure q1 and q3
+      pure [b1,b2,b3]                                   --return the results
       )
 
 drawQuantumOp : IO ()
 drawQuantumOp = do
-  [b1,b2,b3] <- quantum_operation4 {t = SimulatedState}
-  putStrLn "\n\nExecuting last example of quantum operations : sequencing quantum operations using run"
+  [b1,b2,b3] <- quantum_operation4 {t = SimulatedOp}
+  putStrLn "\n\nExecuting an example of quantum operations : sequencing quantum operations using run"
   putStrLn "Create 2 qubits q1 and q2"
-  putStrLn "Apply `toBellBasis` circuit on these two qubits"
+  putStrLn "Apply `toBellBasis` circuit on q1 and q2"
   putStrLn "Create one new qubit q3"
-  putStrLn "Apply the toffoli gate on these 3 qubits"
+  putStrLn "Apply the toffoli gate on q1,q3 and q2"
   putStrLn $ "Measure q2 : result is " ++ show b2
   putStrLn "Apply CNOT on q3 and q1"
   putStrLn $ "Measure q1 and q3 : results are " ++ show b1 ++ " and " ++ show b3

@@ -11,7 +11,7 @@ import Injection
 import LinearTypes
 import Complex
 import System.Random
-import QuantumState
+import QuantumOp
 import RandomUtilities
 
 %default total
@@ -124,7 +124,7 @@ classicalOptimisation g ys = do
 ||| k      -- number of times we sample (the number of times we execute QAOA_p)
 ||| graph  -- input graph of the problem
 ||| output -- all observed cuts and all rotation angles from all the runs of QAOA
-QAOA' : QuantumState t =>
+QAOA' : QuantumOp t =>
         {n : Nat} ->
         (k : Nat) -> (p : Nat) -> (graph : Graph n) ->
         IO (Vect k (Vect p Double, Vect p Double, Cut n))
@@ -148,7 +148,7 @@ QAOA' (S k) p graph = do
 ||| graph  -- input graph of the problem
 ||| output -- best observed cut from the execution of the algorithm
 export
-QAOA : QuantumState t =>
+QAOA : QuantumOp t =>
        {n : Nat} ->
        (k : Nat) -> (p : Nat) -> Graph n ->
        IO (Cut n)

@@ -56,26 +56,26 @@ This file also provides some function to compute the number of gates and the dep
 
 ### **`QStateT.idr`**
 
-Quantum state transformer for effectful quantum computations (used in the file `QuantumState.idr`).
+Quantum state transformer for effectful quantum computations (used in the file `QuantumOp.idr`).
 
 The type `QStateT initialType finalType returnType` means we are performing a quantum operation from an initial state with type initialType, to a final state with type finalType, and we are returned a value of type returnType.
 
 This was inspired by the indexed state monad in Haskell and adapted to linear types. 
 
 
-### **`QuantumState.idr`**
+### **`QuantumOp.idr`**
 
-Defines the `Qubit` type, the `QuantumState` interface for quantum operations and provides an implementation of this interface for simulations.
+Defines the `Qubit` type, the `QuantumOp` interface for quantum operations and provides an implementation of this interface for simulations.
 
 The Qubit type is used to identify individual qubits. This type does not carry any quantum state information.
 
-The QuantumState interface is an abstraction over the representation of a quantum state. It is parameterised by the number of qubits it contains. It introduces a few operations on qubits:
+The QuantumOp interface is an abstraction over the representation of a quantum state. It is parameterised by the number of qubits it contains. It introduces a few operations on qubits:
  * `newQubits`    : Adds p new qubits to a quantum state.
  * `applyUnitary` : Apply a unitary gate to a set of qubits. The parameters are the linear vector of qubit identifiers for the set of qubits and the unitary operator.
  * `measure`      : Measure a set of qubits. The parameters is the linear vectors of identifiers for the qubits we wish to measure.
  * `run`          : Run a sequence of quantum operations, starting with no qubits and measuring all the qubits at the end.
 
-This interface is then implemented for the type SimulatedState, which simulates them using the linear algebraic representation of qubits and unitary operators. Some examples are given in `Examples.idr`
+This interface is then implemented for the type SimulatedOp, which simulates them using the linear algebraic representation of qubits and unitary operators. Some examples are given in `Examples.idr`
 
 ### **`Examples.idr`**
 
@@ -158,4 +158,4 @@ Uncomment some lines to execute the corresponding programs.
 
 ## <a id="getting_started"></a> Getting Started
 
-We recommend starting by reading and executing code from file `Example.idr`. It contains simple examples using the functions defined in `Unitary.idr` and `QuantumState.idr`.
+We recommend starting by reading and executing code from file `Example.idr`. It contains simple examples using the functions defined in `Unitary.idr` and `QuantumOp.idr`.

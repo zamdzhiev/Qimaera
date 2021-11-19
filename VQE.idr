@@ -10,7 +10,7 @@ import Injection
 import LinearTypes
 import Complex
 import System.Random
-import QuantumState
+import QuantumOp
 import RandomUtilities
 
 %default total
@@ -163,7 +163,7 @@ encodingUnitary {n = S k} (PauliZ :: xs) =
 ||| nSamples -- the number of time we sample
 ||| circuit  -- the state |psi>
 ||| output   -- computed energy
-computeEnergyPauli : QuantumState t => (n : Nat) -> (p : PauliBasis n) -> (nSamples : Nat) -> (circuit : Unitary n) -> IO Double
+computeEnergyPauli : QuantumOp t => (n : Nat) -> (p : PauliBasis n) -> (nSamples : Nat) -> (circuit : Unitary n) -> IO Double
 computeEnergyPauli n p 0 circuit = pure 0
 computeEnergyPauli n p (S nSamples) circuit = do
   let encodingCircuit = encodingUnitary p
@@ -187,7 +187,7 @@ computeEnergyPauli n p (S nSamples) circuit = do
 ||| nSamples -- the number of time we sample for each component of H
 ||| circuit  -- the state |psi>
 ||| output   -- computed energy
-computeEnergy : QuantumState t => (n : Nat) -> (h : Hamiltonian n) -> (nSamples : Nat) -> (circuit : Unitary n) -> IO Double
+computeEnergy : QuantumOp t => (n : Nat) -> (h : Hamiltonian n) -> (nSamples : Nat) -> (circuit : Unitary n) -> IO Double
 computeEnergy n [] nSamples circuit = pure 0
 computeEnergy n ((r, p) :: hs) nSamples circuit = do
   res1 <- computeEnergy {t} n hs nSamples circuit
@@ -259,7 +259,7 @@ classicalOptimisation depth h previous_info = do
 ||| k        -- number of iterations of the algorithm
 ||| depth    -- depth of the ansatz circuit
 ||| output   -- all observed information : rotation angles and computed energies
-VQE': QuantumState t =>
+VQE': QuantumOp t =>
        (n : Nat) -> (h : Hamiltonian n) -> (nSamples : Nat) -> (k : Nat) -> (depth : Nat) ->
        IO (Vect k (RotationAnglesMatrix depth n, RotationAnglesMatrix depth n, Double))
 VQE' n h nSamples 0 depth = pure []
@@ -285,7 +285,7 @@ VQE' n h nSamples (S k) depth = do
 ||| depth    -- depth of the ansatz circuit
 ||| output   -- the lowest computed energy
 export
-VQE : QuantumState t =>
+VQE : QuantumOp t =>
       (n : Nat) -> (h : Hamiltonian n) -> (nSamples : Nat) -> (k : Nat) -> (depth : Nat) ->
       IO Double
 VQE n h nSamples k depth = do

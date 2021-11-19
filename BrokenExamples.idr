@@ -10,7 +10,7 @@ import QStateT
 import System.Random
 import Injection
 import Complex
-import QuantumState
+import QuantumOp
 import Examples
 
 -------------------------------------- Impossible Unitaries ---------------------------------------
@@ -56,41 +56,47 @@ brokenApply2 : Unitary 3
 
 -- In this example, wew try to reuse a qubit that has be measured
 
-brokenOp1 : QuantumOp 0 0 (Vect 4 Bool)
-{-brokenOp1  = do
-  [q1,q2,q3,q4] <- newQubits 4
-  [b3] <- measure [q3]
-  [r4,r3,r1] <- applyUnitary [q4,q3,q1] (X 0 IdGate) --trying to reuse q3
-  [b1,b4,b2] <- measure [r1,r4,q2]
-  pure ([b1,b2,b3,b4])
-  -}
+brokenOp1 : IO (Vect 4 Bool)
+{-brokenOp1  = 
+  run (do
+      [q1,q2,q3,q4] <- newQubits {t = SimulatedOp} 4
+      [b3] <- measure [q3]
+      [r4,r3,r1] <- applyUnitary [q4,q3,q1] (X 0 IdGate) --trying to reuse q3
+      [b1,b4,b2] <- measure [r1,r4,q2]
+      pure ([b1,b2,b3,b4])
+      )
+      -} 
 -- Error: While processing right hand side of brokenOp1. q3 is not accessible in this context.
 
 
 
 -- In this example, we try to copy a qubit
 
-brokenOp2 : QuantumOp 0 0 (Vect 5 Bool)
-{-brokenOp2 = do
-  [q1,q2,q3,q4] <- newQubits 4
-  [b3] <- measure [q3]
-  [q4,q1,q5] <- applyUnitary [q4,q1,q4] (X 0 IdGate) --trying to copy q4
-  ?todo
-  -}
-
+brokenOp2 : IO (Vect 5 Bool)
+{-brokenOp2 = 
+  run (do
+      [q1,q2,q3,q4] <- newQubits {t = SimulatedOp} 4
+      [b3] <- measure [q3]
+      [q4,q1,q5] <- applyUnitary [q4,q1,q4] (X 0 IdGate) --trying to copy q4
+      [b1,b2,b5] <- measure [q1,q2,q5]
+      pure [b1,b2,b3,b5,b5]
+      )
+      -}
 --Error : While processing right hand side of brokenOp2. There are 2 uses of linear name q4. 
 
 
 
 -- In this example, we try to reuse a pointer to an old state of a qubit (the state of the qubit has been modified)
 
-brokenOp3 : QuantumOp 0 0 (Vect 4 Bool)
-{-brokenOp3  = do
-  [q1,q2,q3,q4] <- newQubits 4
-  [b3] <- measure [q3]
-  [r4,r2,r1] <- applyUnitary [q4,q2,q1] (X 0 IdGate) 
-  [b1,b4,b2] <- measure [r1,r4,q2] --trying to reuse the name q2
-  pure ([b1,b2,b3,b4])
-  -}
+brokenOp3 : IO (Vect 4 Bool)
+{-brokenOp3  = 
+  run (do
+      [q1,q2,q3,q4] <- newQubits {t = SimulatedOp} 4
+      [b3] <- measure [q3]
+      [r4,r2,r1] <- applyUnitary [q4,q2,q1] (X 0 IdGate) 
+      [b1,b4,b2] <- measure [r1,r4,q2] --trying to reuse the name q2
+      pure ([b1,b2,b3,b4])
+      )
+      -}
 --Error: While processing right hand side of brokenOp2. q2 is not accessible in this context.
 
