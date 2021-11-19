@@ -82,8 +82,8 @@ main = do
 
 
   -- Execute the coin toss example
---  putStrLn "\nTest coin toss"
---  testCoins
+  putStrLn "\nTest coin toss by performing 1000 coin tosses."
+  testCoins
 
   -- Teleportation protocol
 --  putStrLn "\nTest Teleportation protocol"

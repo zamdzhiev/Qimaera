@@ -5,20 +5,21 @@ import QStateT
 import QuantumOp
 import LinearTypes
 
-||| A quantum state transformer which realises a fair coin toss in the obvious way:
+||| A fair coin toss (as an IO effect) via quantum resources.
+|||
 ||| first create a new qubit in state |0>
 ||| then apply a hadamard gate to it, thereby preparing state |+>
 ||| and finally measure the qubit and return this as the result
-coinT : QuantumOp t => QStateT (t 0) (t 0) (Vect 1 Bool)
-coinT = do
-  q <- newQubit
-  q <- applyH q
-  r <- measure [q]
-  pure r
-
-||| A fair coin toss (as an IO effect) via quantum resources.
 export
 coin : QuantumOp t => IO Bool
 coin = do
-  [b] <- run (coinT {t = t})
+  [b] <- run (do
+           q <- newQubit {t = t}
+           q <- applyH q
+           r <- measure [q]
+           pure r
+         )
   pure b
+
+testCoin : IO Bool
+testCoin = coin {t = SimulatedOp}
