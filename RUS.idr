@@ -34,14 +34,18 @@ example_u' : Unitary 2
 example_u' = H 0 $ T 0 $ CNOT 0 1 $ H 0 $ CNOT 0 1 $ T 0 $ H 0 IdGate
 
 export
-testRUS : IO Bool
-testRUS = do
+runRUS : QuantumState t => IO Bool
+runRUS = do
   [b] <- run (do
-              q <- newQubit {t = SimulatedState}
+              q <- newQubit {t = t}
               q <- RUS q example_u' IdGate
               measure [q]
          )
   pure b
+
+export
+testRUS : IO Bool
+testRUS = runRUS {t = SimulatedState}
 
 export
 testMultipleRUS : Nat -> IO ()
@@ -49,4 +53,4 @@ testMultipleRUS n = do
   let f = testRUS
   s <- sequence (Data.List.replicate n f)
   let heads = filter (== True) s
-  putStrLn $ "Number of heads: " ++ (show (length heads))
+  putStrLn $ "Number of '1' outcomes: " ++ (show (length heads)) ++ " out of " ++ (show n) ++ " measurements."
