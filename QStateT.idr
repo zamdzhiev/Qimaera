@@ -17,7 +17,7 @@ data QStateT : (initialType : Type) -> (finalType : Type) -> (returnType : Type)
   MkQST : (1 _ : (1 _ : initialType) -> R (LPair finalType returnType)) -> QStateT initialType finalType returnType
 
 
-||| Unwrap and apply a StateLT monad computation.
+||| Unwrap and apply a QStateT monad computation.
 public export
 runQStateT : (1 _ : initialType) -> (1 _ : QStateT initialType finalType returnType) -> R (LPair finalType returnType)
 runQStateT i (MkQST f) = f i
