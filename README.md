@@ -128,15 +128,15 @@ It is also a quantum variational algorithm.
 
 Implementation of Repeat until success.
 
-This example illustrates the difference between computing unitary operators and doing effectful quantum operations : here we use measurements to apply a unitary operator to a qubit.
+This example illustrates the difference between computing unitary operators and doing effectful quantum operations : here we apply a quantum unitary operator by using measurements and recursion.
 
 Given an input qubit |q> and a single-qubit unitary operation U, return the state U|q>. The "Repeat Until Success" approach solves this problem in the following way:
 
  1. Prepare a new qubit in state |0>.
- 2. Apply some two-qubit unitary operation U' (depends on U).
- 3. Measure the auxiliary qubit.
- 4. With (high) probability the result is now U|q> and then stop.
- 5. With (low) probability the result is state E|q>, where E is some other unitary operator (depending on U), so we uncompute the error by applying E^dagger and we go back to step 1.
+ 2. Apply a two-qubit unitary operator U' (chosen in advance depending on U).
+ 3. Measure the first qubit.
+ 4. If the measurement outcome is 0, then the output state is U |psi>, as required, and the algorithm terminates; otherwise the current state is E|psi>, where E is some other unitary operator (chosen in advance depending on U), so we apply $E^\dagger$ to
+this state and we go back to step (1).
 
 ### **`CoinToss.idr`**
 
