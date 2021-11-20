@@ -1,4 +1,4 @@
-module BrokenExamples
+module ExampleDetectableErrors
 
 import Data.Nat
 import Data.Vect

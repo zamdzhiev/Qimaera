@@ -81,9 +81,9 @@ We also provide a concrete implementation of this interface, called SimulatedOp,
 
 This file contains simple examples of programs (unitary circuits and quantum operations) to get started with the libraries.
 
-### **`BrokenExamples.idr`**
+### **`ExampleDetectableErrors.idr`**
 
-The file contains common examples of wrong programs that can be detected by Idris compiler.
+The file contains common examples of inadmissible programs that can be detected by the Idris type checker.
 
 
 ### **`Lemmas.idr`**
