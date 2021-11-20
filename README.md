@@ -25,22 +25,22 @@ Type `make` to compile the main file and `./run`to run it.
 
 An algebraic representation of unitary quantum circuits.
 
-We first define the `Unitary` data type, which represents the unitary gates. They are only defined as circuits, in terms of gates and wires, and are nor applied to any qubit yet.
-The `Unitary` data type is parametrized by the number of wires in the circuit. It has 4 constructors : 
+The `Unitary` data type represents the unitary circuits.
+The `Unitary` data type is parametrized by the arity of the corresponding unitary operator. It has 4 constructors : 
  * `IdGate` : parametrized by a natural number n, it represents a circuit with n wires, without any other gate applied to any of the wires.
  * `H`      : Hadamard gate, takes as argument the index of the wire on which it should be applied (for a circuit of size n, the indices go from 0 to n-1). The second argument, which is implicit (and can be often inferred by the compiler), is a proof obligation that this index is smaller than the size of the circuit.
  * `P`      : Phase gate, its first argument (a Double) being the associated phase. The other arguments serve the same purpose as H.
  * `CNOT`   : Controlled-NOT gate to the control (c argument) and the target (t argument) wires. Here, we add the constraint that the two wires have to be distinct.
-As all quantum circuits can be represented as a composition or tensor product of Hadamard, Phase and CNOT gates, we only need these three constructors to build any gate.
+As all quantum circuits can be represented as a composition or tensor product of Hadamard, Phase and CNOT gates, we only need these three constructors to build any circuit.
 
 
 Higher level functions to build more complicated circuits are also defined in this file :
 
- * `compose`    : Makes the sequential composition of unitary gates.
- * `tensor`     : Makes the parallel composition (ie the tensor product) of unitary gates.
- * `apply`      : Apply some unitary gate to another unitary gate.
- * `adjoint`    : Computes the adjoint of a unitary operator.
- * `controlled` : Make the controlled version of unitary gate.
+ * `compose`    : sequential composition of unitary circuits.
+ * `tensor`     : parallel composition (tensor product) of unitary circuits.
+ * `apply`      : apply some unitary circuit to another one.
+ * `adjoint`    : the adjoint of a unitary circuit.
+ * `controlled` : controlled version of a unitary circuit.
 
 Some examples using these functions can be found in the `Examples.idr` file.
 
