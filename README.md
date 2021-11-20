@@ -19,6 +19,10 @@ Type `make package` to build the whole package.
 
 Type `make` to compile the main file and `./run`to run it.
 
+## <a id="getting_started"></a> Getting Started
+
+We recommend users start by reading and executing the code from file `Example.idr`. It contains simple examples using the functions defined in `Unitary.idr` and `QuantumOp.idr`.
+
 ## <a id="overview"></a> Library Overview
 
 ### **`Unitary.idr`**
@@ -153,8 +157,3 @@ A simple function for basic optimisation of quantum circuits. The main purpose h
 
 More examples of the different algorithms we implemented.
 Uncomment some lines to execute the corresponding programs.
-
-
-## <a id="getting_started"></a> Getting Started
-
-We recommend users start by reading and executing the code from file `Example.idr`. It contains simple examples using the functions defined in `Unitary.idr` and `QuantumOp.idr`.
