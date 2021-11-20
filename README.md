@@ -12,7 +12,7 @@ The latest version of Idris can be found [here](https://www.idris-lang.org/pages
 
 Type `make package` to build the whole package.
 
-Type `make` to compile the main file and `./run`to run it.
+Type `make` to compile the main file and `./run` to run it.
 
 ## <a id="getting_started"></a> Getting Started
 
@@ -26,10 +26,12 @@ An algebraic representation of unitary quantum circuits.
 
 The `Unitary` data type represents unitary circuits.
 The `Unitary` data type is parametrized by the arity of the corresponding unitary operator. It has 4 constructors : 
+
  * `IdGate` : parametrized by a natural number n, it represents a circuit with n wires, without any other gate applied to any of the wires.
  * `H`      : Hadamard gate, takes as argument the index of the wire on which it should be applied (for a circuit of size n, the indices go from 0 to n-1). The second argument, which is implicit (and can be often inferred by the compiler), is a proof obligation that this index is smaller than the size of the circuit.
  * `P`      : Phase gate, its first argument (a Double) being the associated phase. The other arguments serve the same purpose as H.
  * `CNOT`   : Controlled-NOT gate to the control (c argument) and the target (t argument) wires. Here, we add the constraint that the two wires have to be distinct.
+ 
 As all quantum circuits can be represented as a composition or tensor product of Hadamard, Phase and CNOT gates, we only need these three constructors to build any circuit.
 
 
@@ -69,6 +71,7 @@ Defines the `Qubit` type, the `QuantumOp` interface for quantum operations and p
 The Qubit type is used to identify individual qubits. This type does not carry any quantum state information.
 
 The QuantumOp interface is an abstraction used to represent quantum operations. It introduces a few operations on qubits:
+
  * `newQubits`    : Adds p new qubits to a quantum state.
  * `applyUnitary` : Apply a unitary circuit to a selection of qubits. The parameters are the linear vector of qubit identifiers for the set of qubits and the unitary operator.
  * `measure`      : Measure a set of qubits.
@@ -139,6 +142,7 @@ this state and we go back to step (1).
 ### **`CoinToss.idr`**
 
 A quantum state transformer which realises a fair coin toss in the obvious way: 
+
  * first create a new qubit in state |0>
  * then apply a hadamard gate to it, thereby preparing state |+>
  * and finally measure the qubit and return this as the result
