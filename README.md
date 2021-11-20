@@ -60,7 +60,7 @@ Quantum state transformer for effectful quantum computation (used in the file `Q
 
 The type `QStateT initialType finalType returnType` means we are performing a quantum operation from an initial state with type initialType, to a final state with type finalType, and we return a user-accessible value of type returnType.
 
-This was inspired by the indexed state monad in Haskell and adapted to also handle linearity, probabilistic effects and IO effects. 
+This was inspired by the indexed state monad in Haskell and we adapted it to also handle linearity, probabilistic effects and IO effects. 
 
 
 ### **`QuantumOp.idr`**
