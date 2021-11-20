@@ -25,7 +25,7 @@ Type `make` to compile the main file and `./run`to run it.
 
 An algebraic representation of unitary quantum circuits.
 
-The `Unitary` data type represents the unitary circuits.
+The `Unitary` data type represents unitary circuits.
 The `Unitary` data type is parametrized by the arity of the corresponding unitary operator. It has 4 constructors : 
  * `IdGate` : parametrized by a natural number n, it represents a circuit with n wires, without any other gate applied to any of the wires.
  * `H`      : Hadamard gate, takes as argument the index of the wire on which it should be applied (for a circuit of size n, the indices go from 0 to n-1). The second argument, which is implicit (and can be often inferred by the compiler), is a proof obligation that this index is smaller than the size of the circuit.
