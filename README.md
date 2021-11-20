@@ -71,7 +71,7 @@ The Qubit type is used to identify individual qubits. This type does not carry a
 
 The QuantumOp interface is an abstraction over the representation of a quantum state. It is parameterised by the number of qubits. It introduces a few operations on qubits:
  * `newQubits`    : Adds p new qubits to a quantum state.
- * `applyUnitary` : Apply a unitary gate to a set of qubits. The parameters are the linear vector of qubit identifiers for the set of qubits and the unitary operator.
+ * `applyUnitary` : Apply a unitary circuit to a selection of qubits. The parameters are the linear vector of qubit identifiers for the set of qubits and the unitary operator.
  * `measure`      : Measure a set of qubits. The parameters is the linear vectors of identifiers for the qubits we wish to measure.
  * `run`          : Run a sequence of quantum operations, starting with no qubits and measuring all the qubits at the end.
 
@@ -148,7 +148,7 @@ A quantum state transformer which realises a fair coin toss in the obvious way:
 
 ### **`OptimiseUnitary.idr`**
 
-A small program for a first optimisation of quantum circuits. The main purpose here is to show how unitary gates in Qimaera can be manipulated to be optimised with respect to some criterion.
+A small program for a first optimisation of quantum circuits. The main purpose here is to show how unitary circuits in Qimaera can be manipulated to be optimised with respect to some criterion.
 
 ### **`Main.idr`**
 
