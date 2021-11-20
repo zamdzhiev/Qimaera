@@ -83,7 +83,7 @@ This file contains simple examples of programs (unitary circuits and quantum ope
 
 ### **`ExampleDetectableErrors.idr`**
 
-The file contains common examples of inadmissible programs that can be detected by the Idris type checker.
+This file contains common examples of inadmissible programs that can be detected by the Idris type checker.
 
 
 ### **`Lemmas.idr`**
@@ -96,22 +96,22 @@ Defines some linear types such as linear vectors, and implements some basic func
 
 ### **`Matrix.idr`**
 
-Defines all necesary matrix operations for quantum state simulations.
+Defines all necesary matrix operations for the linear-algebraic simulation.
 
 ### **`QFT.idr`**
 
-The quantum circuit for the Quantum Fourier Transform. Calling `qft n` returns the QFT for n qubits.
+The quantum circuit for the Quantum Fourier Transform. Calling `qft n` returns the QFT on n qubits.
 
 ### **`Teleportation.idr`**
 
 Implementation of the quantum teleportation protocol. 
 The function `runTeleportation` runs the teleportation protocol where the qubit to be teleported is in state |+>.
 
-## **`QAOA.idr`**
+### **`QAOA.idr`**
 
-Implementation of QAOA with vanilla optimisation procedure to solve the MAXCUT problem.
-QAOA is an example of variational quantum algorithm that is used to solve optimisation problems.
-This code shows how classical and quantum information interact.
+Implementation of QAOA with the vanilla optimisation procedure to solve the MAXCUT problem.
+QAOA is an example of a variational quantum algorithm that is used to solve optimisation problems.
+This code shows how classical and quantum programming interact with each other.
 
 
 ### **`Graph.idr`**
@@ -120,15 +120,14 @@ Definition of graphs used in `QAOA.idr` for solving the MAXCUT problem.
 
 ### **`VQE.idr`**
 
-Implementation of VQE with vanilla optimisation.
-VQE is used find an upper bound for the lowest eigenvalue of a Hamiltonian operator.
-It is also a quantum variational algorithm.
+Implementation of the VQE algorithm with a vanilla classical optimisation strategy.
+It is also a variational quantum algorithm.
 
 ### **`RUS.idr`**
 
-Implementation of Repeat until success.
+Implementation of the Repeat Until Success algorithm.
 
-This example illustrates the difference between computing unitary operators and doing effectful quantum operations : here we apply a quantum unitary operator by using measurements and recursion.
+This example illustrates the difference between computing unitary operators and doing effectful quantum operations: here we realise a quantum unitary operator by using measurements and recursion.
 
 Given an input qubit |q> and a single-qubit unitary operation U, return the state U|q>. The "Repeat Until Success" approach solves this problem in the following way:
 
@@ -148,14 +147,14 @@ A quantum state transformer which realises a fair coin toss in the obvious way:
 
 ### **`OptimiseUnitary.idr`**
 
-A small program for a first optimisation of quantum circuits. The main purpose here is to show how unitary circuits in Qimaera can be manipulated to be optimised with respect to some criterion.
+A simple function for basic optimisation of quantum circuits. The main purpose here is to show how unitary circuits in Qimaera can be manipulated to be optimised with respect to some criterion.
 
 ### **`Main.idr`**
 
-More examples on the different algorithms we implemented.
+More examples of the different algorithms we implemented.
 Uncomment some lines to execute the corresponding programs.
 
 
 ## <a id="getting_started"></a> Getting Started
 
-We recommend starting by reading and executing code from file `Example.idr`. It contains simple examples using the functions defined in `Unitary.idr` and `QuantumOp.idr`.
+We recommend users start by reading and executing the code from file `Example.idr`. It contains simple examples using the functions defined in `Unitary.idr` and `QuantumOp.idr`.
