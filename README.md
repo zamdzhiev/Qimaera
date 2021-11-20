@@ -69,7 +69,7 @@ Defines the `Qubit` type, the `QuantumOp` interface for quantum operations and p
 
 The Qubit type is used to identify individual qubits. This type does not carry any quantum state information.
 
-The QuantumOp interface is an abstraction over the representation of a quantum state. It is parameterised by the number of qubits. It introduces a few operations on qubits:
+The QuantumOp interface is an abstraction used to represent quantum operations. It introduces a few operations on qubits:
  * `newQubits`    : Adds p new qubits to a quantum state.
  * `applyUnitary` : Apply a unitary circuit to a selection of qubits. The parameters are the linear vector of qubit identifiers for the set of qubits and the unitary operator.
  * `measure`      : Measure a set of qubits. The parameters is the linear vectors of identifiers for the qubits we wish to measure.
