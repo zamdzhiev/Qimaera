@@ -72,14 +72,14 @@ The Qubit type is used to identify individual qubits. This type does not carry a
 The QuantumOp interface is an abstraction used to represent quantum operations. It introduces a few operations on qubits:
  * `newQubits`    : Adds p new qubits to a quantum state.
  * `applyUnitary` : Apply a unitary circuit to a selection of qubits. The parameters are the linear vector of qubit identifiers for the set of qubits and the unitary operator.
- * `measure`      : Measure a set of qubits. The parameters is the linear vectors of identifiers for the qubits we wish to measure.
- * `run`          : Run a sequence of quantum operations, starting with no qubits and measuring all the qubits at the end.
+ * `measure`      : Measure a set of qubits.
+ * `run`          : Execute a sequence of quantum operations.
 
-This interface is then implemented for the type SimulatedOp, which simulates them using the linear algebraic representation of qubits and unitary operators. Some examples are given in `Examples.idr`
+We also provide a concrete implementation of this interface, called SimulatedOp, which provides linear-algebraic simulation of all the required quantum operations.
 
 ### **`Examples.idr`**
 
-The file contains simple examples of programs (unitary circuits and quantum operations) to get started with the libraries.
+This file contains simple examples of programs (unitary circuits and quantum operations) to get started with the libraries.
 
 ### **`BrokenExamples.idr`**
 
