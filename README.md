@@ -16,7 +16,9 @@ Type `make` to compile the main file and `./run` to run it.
 
 ## <a id="getting_started"></a> Getting Started
 
-We recommend users start by reading and executing the code from file `Example.idr`. It contains simple examples using the functions defined in `Unitary.idr` and `QuantumOp.idr`.
+We strongly recommend starting by reading the following paper: https://arxiv.org/abs/2111.10867. It describes some of the main design ideas and explains how some of our libraries and functions should be understood.
+
+Next, we recommend reading and executing the code from file `Example.idr`. It contains simple examples using the functions defined in `Unitary.idr` and `QuantumOp.idr`.
 
 ## <a id="overview"></a> Library Overview
 
