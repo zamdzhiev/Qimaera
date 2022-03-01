@@ -29,38 +29,27 @@ unitary_correction b1 b2 = (if b2 then XGate else IdGate) . (if b1 then ZGate el
 ||| The Quantum Teleportation Protocol as a state transformer.
 export
 teleportation : QuantumOp t =>
-                (1 _ : Qubit) -> QStateT (t 1) (t 1) (LFstPair Qubit (Vect 2 Bool))
+                (1 _ : Qubit) -> QStateT (t 1) (t 1) Qubit
 teleportation q0 = do
   [q1, q2] <- newQubits 2
   [q0,q1,q2] <- applyUnitary [q0,q1,q2] telep1
   [b1, b2] <- measure [q0,q1]
   [q] <- applyUnitary [q2] (unitary_correction b1 b2) 
-  pure (q # [b1, b2])
+  pure q
   
-||| Run the teleportation protocol where the qubit to be teleported is in state |+>.
+||| Run the teleportation protocol two times on specific input states
 export
-runTeleportation : QuantumOp t => IO (Vect 3 Bool)
-runTeleportation = 
+exampleTeleportation : QuantumOp t => IO (Vect 2 Bool)
+exampleTeleportation = 
       run (do
         q <- newQubit {t = t}
         q <- applyH q
-        (q # [b1, b2]) <- teleportation q
-        [b3] <- measure [q]
-        pure [b1,b2,b3]
+        q <- teleportation q
+        [b1] <- measure [q]
+        -- Second teleportation run
+        q <- newQubit {t = t}
+        [q] <- applyUnitary [q] XGate
+        q <- teleportation q
+        [b2] <- measure [q]
+        pure [b1,b2]
       )
-
-||| Print some useful information on the screen obtained by executing runTeleportation.
-export
-drawTeleportation : QuantumOp t => IO ()
-drawTeleportation = do
-  [b1, b2, b3] <- runTeleportation {t = t}
-  putStrLn "Teleportation Protocol\n\n"
-  putStrLn "First circuit:"
-  draw telep1
-  putStrLn "Measurement results on first two qubits:"
-  putStrLn (show (b1, b2))
-  putStrLn "\nUnitary corrections:"
-  draw (unitary_correction b1 b2)
-  putStrLn "Result of measurement on the last qubit:"
-  putStrLn (show b3)
-

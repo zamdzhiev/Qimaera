@@ -35,19 +35,6 @@ testCoins = do
   putStrLn $ "Number of heads: " ++ (show (length heads))
 
 
-||| Call the drawTeleportation function (using the SimulatedOp implementation)
-||| then execute the runTeleportation function 1000 times and report on the
-||| observed measurement results on the third qubit
-||| (which is in state |+> at the end of the teleportation protocol).
-export
-testTeleport : IO ()
-testTeleport = do
-  drawTeleportation {t = SimulatedOp}
-  l <- sequence (Data.List.replicate 1000 (runTeleportation {t = SimulatedOp}))
-  let nbT = length $ filter (\x => (last x) == True) l
-  putStrLn "\n\nFor 1000 measurements"
-  putStrLn ("Number of True measurements : " ++ show nbT) 
-
 ||| Test graph for the QAOA problem
 export
 graph1 : Graph 5
@@ -85,10 +72,6 @@ main = do
   putStrLn "\nTest coin toss by performing 1000 coin tosses."
   testCoins
 
-  -- Teleportation protocol
---  putStrLn "\nTest Teleportation protocol"
---  testTeleport
-
   -- Repeat until success
   putStrLn "\nTest 'Repeat Until Success'. Probability to measure '1' is 2/3 for this example."
   testMultipleRUS 10000
@@ -99,9 +82,9 @@ main = do
 --  putStrLn $ "result from VQE : " ++ show r
 
   -- QAOA
---  putStrLn "\nSmall test with QAOA"
---  cut <- testQAOA
---  putStrLn $ "result from QAOA : " ++ show cut
+  putStrLn "\nSmall test with QAOA"
+  cut <- testQAOA
+  putStrLn $ "result from QAOA : " ++ show cut
 
   pure ()
 

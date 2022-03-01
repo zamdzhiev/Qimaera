@@ -109,7 +109,6 @@ The quantum circuit for the Quantum Fourier Transform. Calling `qft n` returns t
 ### **`Teleportation.idr`**
 
 Implementation of the quantum teleportation protocol. 
-The function `runTeleportation` runs the teleportation protocol where the qubit to be teleported is in state |+>.
 
 ### **`QAOA.idr`**
 
