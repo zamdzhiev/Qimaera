@@ -3,7 +3,7 @@ Idris libraries for type safe (variational) quantum programming.
 
 ## <a id="installing"></a> Installing Idris2
 
-These libraries have been tested under Idris2 0.4.0 and 0.5.1.
+These libraries have been tested under Idris2 0.4.0, 0.5.1, and 0.6.0.
 
 The latest version of Idris can be found [here](https://www.idris-lang.org/pages/download.html), and all the instructions for installing it can be found [here](https://idris2.readthedocs.io/en/latest/tutorial/starting.html).
 
