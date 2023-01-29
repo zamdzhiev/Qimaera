@@ -52,7 +52,7 @@ qftRec 0 = IdGate
 qftRec 1 = HGate
 qftRec (S (S k)) = 
   let t1 = (qftRec (S k)) # IdGate
-  in rewrite sym $ lemmaplusOneRight k in apply (cRm (S k)) t1 [S k, 0] {prf = lemmaInj1 k}
+  in rewrite sym $ lemmaplusOneRight k in apply (cRm (S (S k))) t1 [S k, 0] {prf = lemmaInj1 k}
 
 
 ||| QFT unitary circuit for n qubits
