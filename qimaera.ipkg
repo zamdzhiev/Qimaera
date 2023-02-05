@@ -1,6 +1,6 @@
 package qimaera
 version = 0.1
-depends = contrib
+depends = contrib, linear
 brief = "Idris2 libraries for (variational) quantum programming"
 readme = "README.md"
 license = "MIT"
