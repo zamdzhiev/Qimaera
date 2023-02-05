@@ -1,12 +1,13 @@
 # Qimaera
-Idris libraries for type safe (variational) quantum programming.
+Idris libraries for hybrid classical-quantum programming.
 
 ## <a id="installing"></a> Installing Idris2
 
-These libraries have been tested under Idris2 0.4.0, 0.5.1, and 0.6.0.
+The current version of the library works for Idris2 0.6.0.
+
+Previous versions of the library have been tested under Idris2 0.4.0 and 0.5.1.
 
 The latest version of Idris can be found [here](https://www.idris-lang.org/pages/download.html), and all the instructions for installing it can be found [here](https://idris2.readthedocs.io/en/latest/tutorial/starting.html).
-
 
 ## <a id="compiling"></a> Compiling Qimaera
 
