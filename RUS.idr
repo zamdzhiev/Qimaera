@@ -17,6 +17,7 @@ import Data.List
 ||| 4. With (high) probability the result is now U|q> and then stop.
 ||| 5. With (low) probability the result is state E|q>, where E is some other unitary operator
 |||    (depending on U), so we uncompute the error by applying E^dagger and we go back to step 1.
+||| For more information, see https://arxiv.org/abs/1311.1074
 
 export
 RUS : QuantumOp t => (1 _ : Qubit) -> (u' : Unitary 2) -> (e : Unitary 1) -> QStateT (t 1) (t 1) Qubit
